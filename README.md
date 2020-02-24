@@ -1,5 +1,5 @@
 ## To Do's
-* Phase 1
+* Phase 1 (*chelsy* - I can work on this)
   * fs_mount()
   * fs_umount()
   * fs_info()
