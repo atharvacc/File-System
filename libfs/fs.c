@@ -25,6 +25,7 @@ typedef struct __attribute__((packed)) root_directory {
 } root_directory;
 
 static uint16_t fat;
+static bool mounted;
 
 int fs_mount(const char *diskname)
 {
