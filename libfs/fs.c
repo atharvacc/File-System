@@ -35,9 +35,17 @@ int fs_mount(const char *diskname)
 
 int fs_umount(void)
 {
-	if(!mounted || num_open_files != 0){
+	if(!mounted || num_open_files != 0){  //return -1 if no underlying virtual disk was opened or if there are still open file descriptors
 		return -1;
 	}
+
+	//Unmount the currently mounted file system
+
+	//close the underlying virtual disk file.
+	if(block_disk_close() != 0){ //return -1 if the virtual disk cannot be closed
+		return -1;
+	}
+
 
 	return 0;
 }
