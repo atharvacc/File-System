@@ -40,7 +40,13 @@ int fs_umount(void)
 	}
 
 	//Unmount the currently mounted file system
-	block_write();
+	block_write(superblock.data_bock_index, root_directory);
+
+	//write fat blocks
+
+	for (int i = 0; i < superblock.num_fat_blocks; i++){
+		block_write();
+	}
 
 	//close the underlying virtual disk file.
 	if(block_disk_close() != 0){ //return -1 if the virtual disk cannot be closed
