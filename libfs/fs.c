@@ -25,7 +25,8 @@ typedef struct __attribute__((packed)) root_directory {
 } root_directory;
 
 static uint16_t fat;
-static bool mounted;
+static bool mounted = false;
+static in num_open_files = 0;
 
 int fs_mount(const char *diskname)
 {
@@ -34,7 +35,11 @@ int fs_mount(const char *diskname)
 
 int fs_umount(void)
 {
-	/* TODO: Phase 1 */
+	if(!mounted || num_open_files != 0){
+		return -1;
+	}
+
+	return 0;
 }
 
 int fs_info(void)
