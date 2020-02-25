@@ -40,13 +40,14 @@ int fs_umount(void)
 	}
 
 	//Unmount the currently mounted file system
+	block_write();
 
 	//close the underlying virtual disk file.
 	if(block_disk_close() != 0){ //return -1 if the virtual disk cannot be closed
 		return -1;
 	}
 
-
+	mounted = false;
 	return 0;
 }
 
