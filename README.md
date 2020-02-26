@@ -1,13 +1,13 @@
 ## To Do's
-* Phase 1 (*chelsy* - I can work on this)
-  * fs_mount()
-  * fs_umount()
+* Phase 1
+  * fs_mount() 
+  * fs_umount() - Done
   * fs_info()
   
 * Phase 2
-  * fs_create()
+  * fs_create() - in progress
   * fs_delete()
-  * fs_ls()
+  * fs_ls() - Done
   
 * Phase 3
   * fs_open() 
