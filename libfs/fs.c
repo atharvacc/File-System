@@ -101,7 +101,7 @@ int fs_info(void)
 	printf("rdir_blk=%d\n", superBlock->root_block_index);
 	printf("data_blk=%d\n", superBlock->root_block_index+1);
 	printf("data_blk_count=%d\n", data_blk_count);
-	printf("fat_free_ratio=%d/%d\n", fat_free_count/data_blk_count);
+	printf("fat_free_ratio=%d/%d\n", fat_free_count,data_blk_count);
 	
 	return 0;
 }
