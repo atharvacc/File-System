@@ -89,12 +89,19 @@ int fs_info(void)
 {
 
 	int data_blk_count = block_disk_count() - (superBlock->num_fat_blocks  + 2);
+	int fat_free_count = 0;
+	for (int i = 0; i < (superBlock->num_total_blocks*BLOCK_SIZE); i++){
+		if(fat[i] == 0){
+			fat_free_count++;
+		}
+	}
 	printf("FS Info:\n");
 	printf("Total_blk_count=%d\n", block_disk_count() );
 	printf("fat_blk_count=%d\n", superBlock->num_fat_blocks);
 	printf("rdir_blk=%d\n", superBlock->root_block_index);
 	printf("data_blk=%d\n", superBlock->root_block_index+1);
 	printf("data_blk_count=%d\n", data_blk_count);
+	printf("fat_free_ratio=%d/%d\n", fat_free_count/data_blk_count);
 	
 	return 0;
 }
