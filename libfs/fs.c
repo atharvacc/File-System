@@ -69,8 +69,7 @@ int fs_mount(const char *diskname)
 	printf("Signature matched as well \n");
 	fat = malloc(sizeof(uint16_t) * superBlock->num_total_blocks * BLOCK_SIZE);
 	printf("Number of FAT blocks : %d \n", superBlock->num_fat_blocks);
-	for(int i = 0; i < superBlock->num_fat_blocks; ++i){
-		printf("using block %d \n", i);
+	for(int i = 0; i < superBlock->num_fat_blocks; i++){
 		if(block_read(i+1, fat + (BLOCK_SIZE*i)) == -1 ){
 			return -1;
 		}
