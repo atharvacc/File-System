@@ -8,6 +8,8 @@
 #include "disk.h"
 #include "fs.h"
 
+#define FS_FILENAME_LEN 16
+
 typedef struct __attribute__((packed)) superblock {
 	uint8_t signature[8];
 	uint16_t num_total_blocks;
@@ -19,7 +21,7 @@ typedef struct __attribute__((packed)) superblock {
 } superblock;
 
 typedef struct __attribute__((packed)) root_directory {
-	uint8_t filename[16];
+	uint8_t filename[FS_FILENAME_LEN];
 	uint32_t file_size;
 	uint16_t first_data_block_index;
 	uint8_t unused_padding[10];
@@ -33,6 +35,7 @@ root_directory *rootDir;
 
 static bool mounted = false;
 static int num_open_files = 0;
+static int num_files = 0;
 
 int fs_mount(const char *diskname)
 {
@@ -76,7 +79,18 @@ int fs_info(void)
 
 int fs_create(const char *filename)
 {
-	/* TODO: Phase 2 */
+	if ( strlen(filename)+1 > FS_FILENAME_LEN ||  num_files+1 > FS_FILE_MAX_COUNT){ //return -1 if string @filename is too long or if the root directory already contains* %FS_FILE_MAX_COUNT files
+		return -1;
+	}
+
+	for (int i = 0; i < FS_FILE_MAX_COUNT; i++){ //return -1 if a file named @filename already exists
+
+		//if two strings are same
+	}
+	//String @filename must be NULL-terminated
+	//Create a new and empty file named @filename in the root directory of the mounted file system
+
+	return 0;
 }
 
 int fs_delete(const char *filename)
