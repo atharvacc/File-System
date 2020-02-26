@@ -84,8 +84,9 @@ int fs_create(const char *filename)
 	}
 
 	for (int i = 0; i < FS_FILE_MAX_COUNT; i++){ //return -1 if a file named @filename already exists
-
-		//if two strings are same
+		if (strcmp((char*)rootDir[i].filename,filename) == 0){//if two strings are same
+			return -1;
+		}
 	}
 	//String @filename must be NULL-terminated
 	//Create a new and empty file named @filename in the root directory of the mounted file system
