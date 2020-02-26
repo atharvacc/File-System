@@ -153,7 +153,12 @@ int fs_close(int fd)
 
 int fs_stat(int fd)
 {
-	/* TODO: Phase 3 */
+  //return -1 if file descriptor @fd is invalid (out of bounds or not currently open)
+	if(fd < 0 ){
+		return -1;
+	}
+
+	return ;//return the current size of file.
 }
 
 int fs_lseek(int fd, size_t offset)
