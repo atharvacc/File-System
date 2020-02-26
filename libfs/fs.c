@@ -86,7 +86,7 @@ int fs_umount(void)
 
 int fs_info(void)
 {
-	for (int i = 0;i < superBlock->num_data_blocks; i++i){
+	for (int i = 0;i < superBlock->num_data_blocks; i++){
 		printf("Content of fat is %d \n", fat[i]);
 	}
 	return 0;
