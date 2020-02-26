@@ -40,7 +40,7 @@ root_directory *rootDir;
 int fs_mount(const char *diskname)
 {
 	superBlock =  malloc(sizeof(struct superblock));
-	rootDir = malloc(sizeof(struct root_directory));
+	rootDir = malloc(sizeof(uint32_t) * FS_FILE_MAX_COUNT);
 	
 
 	if(block_disk_open(diskname) == -1){
