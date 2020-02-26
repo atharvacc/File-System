@@ -51,6 +51,10 @@ int fs_mount(const char *diskname)
 		return -1;
 	} // If failed to update superblock
 
+	if(block_read(superBlock->root_block_index, rootDir) == -1){
+		return -1;
+	} // Load rootDir
+
 	printf("SuperBlock updated succesfully \n");
 	int block_count = block_disk_count(); // Get count for currently opened disk
 	if(block_count != superBlock->num_total_blocks){
@@ -65,6 +69,8 @@ int fs_mount(const char *diskname)
 	if(strcmp(SIGN, signCheck) != 0){
 		return -1;
 	} // If signature doesn't match as per specifications
+
+
 
 	printf("Signature matched as well \n");
 	fat = malloc(sizeof(uint16_t) * superBlock->num_fat_blocks * BLOCK_SIZE);
@@ -95,7 +101,9 @@ int fs_info(void)
 		if(fat[i] == 0){
 			fat_free_count++;
 		}
-	}
+	} // Find fat_free_ratio
+	//int root_free_count = 0;
+	
 	printf("FS Info:\n");
 	printf("Total_blk_count=%d\n", block_disk_count() );
 	printf("fat_blk_count=%d\n", superBlock->num_fat_blocks);
