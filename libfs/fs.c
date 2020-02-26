@@ -76,12 +76,14 @@ int fs_mount(const char *diskname)
 
 int fs_umount(void)
 {
-	/* TODO: Phase 1 */
+	
 }
 
 int fs_info(void)
 {
-	/* TODO: Phase 1 */
+	for (int i = 0;i < superBlock->num_data_blocks; i++){
+		printf("Content of fat is %d \n", fat[i]);
+	}
 }
 
 int fs_create(const char *filename)
