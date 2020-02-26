@@ -93,7 +93,7 @@ int fs_info(void)
 	printf("Total_blk_count=%d\n", block_disk_count() );
 	printf("fat_blk_count=%d\n", superBlock->num_fat_blocks);
 	printf("rdir_blk=%d\n", superBlock->root_block_index);
-	printf("data_blk=%d\n", superBlock->num_data_blocks);
+	printf("data_blk=%d\n", superBlock->root_block_index+1);
 	printf("data_blk_count=%d\n", data_blk_count);
 	
 	return 0;
