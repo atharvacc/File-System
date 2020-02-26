@@ -128,7 +128,7 @@ int fs_ls(void)
 		return -1;
 	}
 	/* FS Ls:file: %s, size: %d, data_blk: %d*/
-	printf("FS Ls:"");
+	printf("FS Ls:");
 	for(int i = 0; i < FS_FILE_MAX_COUNT; i++){
 		if (rootDir[i].filename[0] != '\0')
     {
