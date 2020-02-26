@@ -83,13 +83,36 @@ int fs_create(const char *filename)
 		return -1;
 	}
 
+	bool null_terminated = false;
+	root_directory *empty_index = NULL;
+
+	for (int x = 0; x < FS_FILENAME_LEN; x++){
+		if (filename[x] == '\0'){
+			null_terminated = true;
+			empty_index = rootDir[x]; //find empty space
+			break;
+		}
+	}
+
+	if(!null_terminated){ //String @filename must be NULL-terminated
+		return -1;
+	}
+
 	for (int i = 0; i < FS_FILE_MAX_COUNT; i++){ //return -1 if a file named @filename already exists
 		if (strcmp((char*)rootDir[i].filename,filename) == 0){//if two strings are same
 			return -1;
 		}
 	}
-	//String @filename must be NULL-terminated
-	//Create a new and empty file named @filename in the root directory of the mounted file system
+
+	if (empty_index == NULL){ //if empty space not found
+		return -1;
+	}
+
+	//else create a new and empty file named @filename in the root directory of the mounted file system
+	strcpy(empty_index->filename, filename);
+	//memset(empty_index->filename, 0, FS_FILENAME_LEN);
+	empty_index->file_size = 0;
+	empty_index->first_data_blk_index = 0xFFFF;
 
 	return 0;
 }
