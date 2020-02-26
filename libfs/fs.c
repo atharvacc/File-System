@@ -7,6 +7,10 @@
 #include "disk.h"
 #include "fs.h"
 
+
+#define SIGN "ECS150FS"
+#define SUPERBLOCKOFFSET 0x00
+
 typedef struct __attribute__((packed)) superblock {
 	uint8_t signature[8];
 	uint16_t num_total_blocks;
@@ -26,9 +30,41 @@ typedef struct __attribute__((packed)) root_directory {
 
 static uint16_t fat;
 
+//Global variables to be used
+superblock *superBlock; 
+root_directory *rootDir;
+static int num_open_files = 0;
+
+
+
 int fs_mount(const char *diskname)
 {
-	/* TODO: Phase 1 */
+	superBlock =  malloc(sizeof(struct superblock));
+	rootDir = malloc(sizeof(struct root_directory));
+
+	if(block_disk_open(diskname) == -1){
+		return -1;
+	} // If we cannot open disk 
+	
+	if(block_read(SUPERBLOCKOFFSET, superBlock) == -1){
+		return -1;
+	} // If failed to read contents of opened file
+
+	int block_count = block_disk_count(); // Get count for currently opened disk
+	if(block_count != superBlock->num_total_blocks){
+		return -1;
+	} // If the block counts don't match
+
+	// Initialize signCheck and add \0
+	char signCheck[9];
+	memcpy(signCheck, superBlock->signature, 8);
+	signCheck[8] = '\0';
+	if(strcmp(SIGN, signCheck) != 0){
+		printf("SIGN DIDN'T MATCh\n");
+		return -1;
+	}
+
+
 }
 
 int fs_umount(void)
