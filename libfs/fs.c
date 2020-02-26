@@ -110,9 +110,9 @@ int fs_create(const char *filename)
 
 	//else create a new and empty file named @filename in the root directory of the mounted file system
 	strcpy(empty_index->filename, filename);
-	//memset(empty_index->filename, 0, FS_FILENAME_LEN);
 	empty_index->file_size = 0;
 	empty_index->first_data_blk_index = 0xFFFF;
+	empty_index->filename[strlen(filename)] = '\0';
 
 	return 0;
 }
@@ -124,7 +124,21 @@ int fs_delete(const char *filename)
 
 int fs_ls(void)
 {
-	/* TODO: Phase 2 */
+	if(block_disk_count() == -1){ //return -1 if no underlying virtual disk was opened.
+		return -1;
+	}
+	/* FS Ls:file: %s, size: %d, data_blk: %d*/
+	printf("FS Ls:"");
+	for(int i = 0; i < FS_FILE_MAX_COUNT; i++){
+		if (rootDir[i].filename[0] != '\0')
+    {
+			printf("file: %s,", (char*)rootDir[i].filename);
+			printf(" size: %d,", rootDir[i].file_size);
+			printf(" data_blk: %d\n", rootDir[i].first_data_block_index);
+		}
+	}
+
+	return 0;
 }
 
 int fs_open(const char *filename)
