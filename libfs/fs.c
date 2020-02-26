@@ -11,7 +11,7 @@ typedef struct __attribute__((packed)) superblock {
 	uint8_t signature[8];
 	uint16_t num_total_blocks;
 	uint16_t root_block_index;
-	uint16_t data_bock_index;
+	uint16_t data_block_index;
 	uint16_t num_data_blocks;
 	uint8_t num_fat_blocks;
 	uint8_t unused_padding[4079];
@@ -24,7 +24,12 @@ typedef struct __attribute__((packed)) root_directory {
 	uint8_t unused_padding[10];
 } root_directory;
 
-static uint16_t fat;
+static uint16_t *fat;
+
+//Global variables to be used
+superblock *superBlock;
+root_directory *rootDir;
+
 static bool mounted = false;
 static in num_open_files = 0;
 
@@ -39,13 +44,19 @@ int fs_umount(void)
 		return -1;
 	}
 
-	//Unmount the currently mounted file system
-	block_write(superblock.data_bock_index, root_directory);
+	//Unmount the currently mounted file system by writing superblock & root
+	if (block_write(0, superblock) == -1){
+		return -1;
+	}
+	if (block_write((superblock->data_block_index-1), rdir) == -1){
+		return -1;
+	}
 
 	//write fat blocks
-
 	for (int i = 0; i < superblock.num_fat_blocks; i++){
-		block_write();
+		if (block_write(1 + i, fat + (i*4096)) == -1){
+			return -1;
+		}
 	}
 
 	//close the underlying virtual disk file.
