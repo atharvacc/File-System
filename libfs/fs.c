@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "disk.h"
 #include "fs.h"
@@ -31,7 +32,7 @@ superblock *superBlock;
 root_directory *rootDir;
 
 static bool mounted = false;
-static in num_open_files = 0;
+static int num_open_files = 0;
 
 int fs_mount(const char *diskname)
 {
@@ -45,15 +46,15 @@ int fs_umount(void)
 	}
 
 	//Unmount the currently mounted file system by writing superblock & root
-	if (block_write(0, superblock) == -1){
+	if (block_write(0, superBlock) == -1){
 		return -1;
 	}
-	if (block_write((superblock->data_block_index-1), rdir) == -1){
+	if (block_write((superBlock->data_block_index-1), rootDir) == -1){
 		return -1;
 	}
 
 	//write fat blocks
-	for (int i = 0; i < superblock.num_fat_blocks; i++){
+	for (int i = 0; i < superBlock->num_fat_blocks; i++){
 		if (block_write(1 + i, fat + (i*4096)) == -1){
 			return -1;
 		}
