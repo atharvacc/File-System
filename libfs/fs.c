@@ -28,7 +28,7 @@ typedef struct __attribute__((packed)) root_directory {
 	uint8_t unused_padding[10];
 } root_directory;
 
-static uint16_t fat;
+static uint16_t *fat;
 
 //Global variables to be used
 superblock *superBlock; 
@@ -41,6 +41,7 @@ int fs_mount(const char *diskname)
 {
 	superBlock =  malloc(sizeof(struct superblock));
 	rootDir = malloc(sizeof(struct root_directory));
+	
 
 	if(block_disk_open(diskname) == -1){
 		return -1;
@@ -60,8 +61,14 @@ int fs_mount(const char *diskname)
 	memcpy(signCheck, superBlock->signature, 8);
 	signCheck[8] = '\0';
 	if(strcmp(SIGN, signCheck) != 0){
-		printf("SIGN DIDN'T MATCh\n");
 		return -1;
+	} // If signature doesn't match as per specifications
+
+	fat = malloc(sizeof(uint16_t) * block_count*superBlock->num_total_blocks * BLOCK_SIZE);
+	for(int i = 0; i < superBlock->num_fat_blocks; i++){
+		if(block_read(i+1, fat + (BLOCK_SIZE*i)) == -1 ){
+			return -1;
+		}
 	}
 
 
