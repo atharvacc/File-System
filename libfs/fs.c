@@ -33,7 +33,7 @@ static uint16_t *fat;
 //Global variables to be used
 superblock *superBlock; 
 root_directory *rootDir;
-static int num_open_files = 0;
+//static int num_open_files = 0;
 
 
 
@@ -70,6 +70,7 @@ int fs_mount(const char *diskname)
 			return -1;
 		}
 	}
+	return 0;
 
 
 }
@@ -84,6 +85,7 @@ int fs_info(void)
 	for (int i = 0;i < superBlock->num_data_blocks; i++){
 		printf("Content of fat is %d \n", fat[i]);
 	}
+	return 0;
 }
 
 int fs_create(const char *filename)
