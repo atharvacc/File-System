@@ -67,7 +67,7 @@ int fs_mount(const char *diskname)
 	} // If signature doesn't match as per specifications
 
 	printf("Signature matched as well \n");
-	fat = malloc(sizeof(uint16_t) * superBlock->num_total_blocks * BLOCK_SIZE);
+	fat = malloc(sizeof(uint16_t) * superBlock->num_fat_blocks * BLOCK_SIZE);
 	printf("Number of FAT blocks : %d \n", superBlock->num_fat_blocks);
 	for(int i = 0; i < superBlock->num_fat_blocks; i++){
 		if(block_read(i+1, fat + (BLOCK_SIZE*i)) == -1 ){
@@ -90,7 +90,8 @@ int fs_info(void)
 
 	int data_blk_count = block_disk_count() - (superBlock->num_fat_blocks  + 2);
 	int fat_free_count = 0;
-	for (int i = 0; i < (superBlock->num_total_blocks*BLOCK_SIZE); i++){
+	
+	for (int i = 0; i < (superBlock->num_data_blocks); i++){
 		if(fat[i] == 0){
 			fat_free_count++;
 		}
