@@ -84,6 +84,8 @@ int fs_mount(const char *diskname)
 	}
 	mounted = true;
 	return 0;
+
+
 }
 
 int fs_umount(void)
@@ -160,13 +162,12 @@ int fs_delete(const char *filename)
 
 int fs_ls(void)
 {
-	
 
 	if(block_disk_count() == -1){ //return -1 if no underlying virtual disk was opened.
 		return -1;
 	}
 	/* FS Ls:file: %s, size: %d, data_blk: %d*/
-	printf("FS Ls:\n");
+	printf("FS Ls:");
 	for(int i = 0; i < FS_FILE_MAX_COUNT; i++){
 		if (rootDir[i].filename[0] != '\0')
     {
