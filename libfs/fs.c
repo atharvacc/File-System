@@ -99,7 +99,12 @@ int fs_info(void)
 			fat_free_count++;
 		}
 	} // Find fat_free_ratio
-	//int root_free_count = 0;
+	int root_free_count = 0;
+	for (int i = 0; i <FS_FILE_MAX_COUNT; i++){
+		if(rootDir->filename[0] == "\0"){
+			root_free_count++;
+		}
+	}
 	
 	printf("FS Info:\n");
 	printf("Total_blk_count=%d\n", block_disk_count() );
@@ -108,6 +113,7 @@ int fs_info(void)
 	printf("data_blk=%d\n", superBlock->root_block_index+1);
 	printf("data_blk_count=%d\n", data_blk_count);
 	printf("fat_free_ratio=%d/%d\n", fat_free_count,data_blk_count);
+	printf("rdir_free_ratio=%d/%d\n", root_free_count,FS_FILE_MAX_COUNT);
 	
 	return 0;
 }
