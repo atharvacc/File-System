@@ -50,11 +50,11 @@ int fs_mount(const char *diskname)
 	if(block_read(SUPERBLOCKOFFSET, superBlock) == -1){
 		return -1;
 	} // If failed to update superblock
-
+	/*
 	if(block_read(superBlock->root_block_index, rootDir) == -1){
 		return -1;
 	} // Load rootDir
-
+	*/
 	printf("SuperBlock updated succesfully \n");
 	int block_count = block_disk_count(); // Get count for currently opened disk
 	if(block_count != superBlock->num_total_blocks){
@@ -70,9 +70,6 @@ int fs_mount(const char *diskname)
 		return -1;
 	} // If signature doesn't match as per specifications
 
-
-
-	printf("Signature matched as well \n");
 	fat = malloc(sizeof(uint16_t) * superBlock->num_fat_blocks * BLOCK_SIZE);
 	printf("Number of FAT blocks : %d \n", superBlock->num_fat_blocks);
 	for(int i = 0; i < superBlock->num_fat_blocks; i++){
