@@ -40,7 +40,7 @@ root_directory *rootDir;
 
 static bool mounted = false;
 static int num_open_files = 0;
-static int num_files = 0;
+//static int num_files = 0;
 
 
 int fs_mount(const char *diskname)
