@@ -3,26 +3,29 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "disk.h"
 #include "fs.h"
 
 
+
 #define SIGN "ECS150FS"
 #define SUPERBLOCKOFFSET 0x00
+
 
 typedef struct __attribute__((packed)) superblock {
 	uint8_t signature[8];
 	uint16_t num_total_blocks;
 	uint16_t root_block_index;
-	uint16_t data_bock_index;
+	uint16_t data_block_index;
 	uint16_t num_data_blocks;
 	uint8_t num_fat_blocks;
 	uint8_t unused_padding[4079];
 } superblock;
 
 typedef struct __attribute__((packed)) root_directory {
-	uint8_t filename[16];
+	uint8_t filename[FS_FILENAME_LEN];
 	uint32_t file_size;
 	uint16_t first_data_block_index;
 	uint8_t unused_padding[10];
@@ -31,10 +34,13 @@ typedef struct __attribute__((packed)) root_directory {
 static uint16_t *fat;
 
 //Global variables to be used
-superblock *superBlock; 
-root_directory *rootDir;
-//static int num_open_files = 0;
 
+superblock *superBlock;
+root_directory *rootDir;
+
+static bool mounted = false;
+static int num_open_files = 0;
+static int num_files = 0;
 
 
 int fs_mount(const char *diskname)
@@ -83,6 +89,32 @@ int fs_mount(const char *diskname)
 
 int fs_umount(void)
 {
+	if(!mounted || num_open_files != 0){  //return -1 if no underlying virtual disk was opened or if there are still open file descriptors
+		return -1;
+	}
+
+	//Unmount the currently mounted file system by writing superblock & root
+	if (block_write(0, superBlock) == -1){
+		return -1;
+	}
+	if (block_write((superBlock->data_block_index-1), rootDir) == -1){
+		return -1;
+	}
+
+	//write fat blocks
+	for (int i = 0; i < superBlock->num_fat_blocks; i++){
+		if (block_write(1 + i, fat + (i*4096)) == -1){
+			return -1;
+		}
+	}
+
+	//close the underlying virtual disk file.
+	if(block_disk_close() != 0){ //return -1 if the virtual disk cannot be closed
+		return -1;
+	}
+
+	mounted = false;
+
 	return 0;
 }
 
@@ -129,6 +161,20 @@ int fs_delete(const char *filename)
 
 int fs_ls(void)
 {
+
+	if(block_disk_count() == -1){ //return -1 if no underlying virtual disk was opened.
+		return -1;
+	}
+	/* FS Ls:file: %s, size: %d, data_blk: %d*/
+	printf("FS Ls:");
+	for(int i = 0; i < FS_FILE_MAX_COUNT; i++){
+		if (rootDir[i].filename[0] != '\0')
+    {
+			printf("file: %s,", (char*)rootDir[i].filename);
+			printf(" size: %d,", rootDir[i].file_size);
+			printf(" data_blk: %d\n", rootDir[i].first_data_block_index);
+		}
+	}
 	return 0;
 }
 
@@ -144,7 +190,9 @@ int fs_close(int fd)
 
 int fs_stat(int fd)
 {
+
 	return 0;
+
 }
 
 int fs_lseek(int fd, size_t offset)
