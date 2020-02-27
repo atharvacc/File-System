@@ -40,7 +40,7 @@ root_directory *rootDir;
 int fs_mount(const char *diskname)
 {
 	superBlock =  malloc(sizeof(struct superblock));
-	rootDir = malloc(sizeof(uint32_t) * FS_FILE_MAX_COUNT);
+	rootDir = malloc(sizeof(uint32_t) * BLOCK_SIZE);
 	
 
 	if(block_disk_open(diskname) == -1){
@@ -50,11 +50,11 @@ int fs_mount(const char *diskname)
 	if(block_read(SUPERBLOCKOFFSET, superBlock) == -1){
 		return -1;
 	} // If failed to update superblock
-	/*
+	
 	if(block_read(superBlock->root_block_index, rootDir) == -1){
 		return -1;
 	} // Load rootDir
-	*/
+	
 	printf("SuperBlock updated succesfully \n");
 	int block_count = block_disk_count(); // Get count for currently opened disk
 	if(block_count != superBlock->num_total_blocks){
