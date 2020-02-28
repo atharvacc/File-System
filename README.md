@@ -3,8 +3,7 @@
   
 * Phase 2
   * fs_create() - in progress (C)
-  * fs_delete()
-  * fs_ls() - Done (C)
+  * fs_delete() - in progress (A)
   
 * Phase 3
   * fs_open() 
@@ -21,3 +20,4 @@
   * fs_mount() - Done (A)
   * fs_umount() - Done (C)
   * fs_info() - Done(A)
+  * fs_ls() - Done (C)
