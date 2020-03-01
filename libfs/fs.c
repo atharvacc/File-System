@@ -82,9 +82,9 @@ int fs_mount(const char *diskname)
 			return -1;
 		}
 	}
+	
+	mounted = true;
 	return 0;
-
-
 }
 
 int fs_umount(void)
