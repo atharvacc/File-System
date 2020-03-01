@@ -128,13 +128,13 @@ int fs_ls(void)
 		return -1;
 	}
 	/* FS Ls:file: %s, size: %d, data_blk: %d*/
-	printf("FS Ls:");
+	printf("FS Ls:\n");
 	for(int i = 0; i < FS_FILE_MAX_COUNT; i++){
-		if (rootDir[i].filename[0] != '\0')
+		if (rootDir[i].filename[0] != 0)
     {
 			printf("file: %s,", (char*)rootDir[i].filename);
-			printf(" size: %d,", rootDir[i].file_size);
-			printf(" data_blk: %d\n", rootDir[i].first_data_block_index);
+			printf(" size: %u,", rootDir[i].file_size);
+			printf(" data_blk: %u\n", rootDir[i].first_data_block_index);
 		}
 	}
 
