@@ -19,5 +19,5 @@
 * Phase 1
   * fs_mount() - Done (A)
   * fs_umount() - Done (C)
-  * fs_info() - Done(A)
+  * fs_info() - Done (A)
   * fs_ls() - Done (C)
