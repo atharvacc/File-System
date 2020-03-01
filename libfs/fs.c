@@ -8,8 +8,6 @@
 #include "disk.h"
 #include "fs.h"
 
-
-
 #define SIGN "ECS150FS"
 #define SUPERBLOCKOFFSET 0x00
 
@@ -31,7 +29,7 @@ typedef struct __attribute__((packed)) root_directory {
 	uint8_t unused_padding[10];
 } root_directory;
 
-typdef struct file {
+typedef struct file {
 	root_directory file;
 	size_t offset;
 } file;
@@ -166,7 +164,7 @@ int fs_create(const char *filename)
 	for (int x = 0; x < FS_FILENAME_LEN; x++){
 		if (filename[x] == '\0'){
 			null_terminated = true;
-			empty_index = rootDir[x]; //find empty space
+			empty_index = *rootDir[x]; //find empty space
 			break;
 		}
 	}
@@ -188,7 +186,7 @@ int fs_create(const char *filename)
 	//else create a new and empty file named @filename in the root directory of the mounted file system
 	strcpy(empty_index->filename, filename);
 	empty_index->file_size = 0;
-	empty_index->first_data_blk_index = 0xFFFF;
+	empty_index->first_data_block_index = 0xFFFF;
 	empty_index->filename[strlen(filename)] = '\0';
 
 	return 0;
@@ -225,6 +223,15 @@ int fs_open(const char *filename)
 
 int fs_close(int fd)
 {
+	if(fd < 0 || fd > 32 || files[fd].file == NULL){ //32 is max open count
+		return -1;
+	}
+
+	//close fd
+	files[fd].offset	= 0;
+	files[fd].file = NULL;
+
+	num_open_files--;
 	return 0;
 }
 
