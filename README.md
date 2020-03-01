@@ -8,7 +8,7 @@
 * Phase 3
   * fs_open() 
   * fs_close()
-  * fs_lseek()
+  * fs_lseek() - in progress (C)
   * fs_stat() - in progress (C)
 
 * Phase 4
