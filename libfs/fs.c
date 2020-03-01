@@ -47,27 +47,27 @@ int fs_mount(const char *diskname)
 {
 	superBlock =  malloc(sizeof(struct superblock));
 	rootDir = malloc(sizeof(uint32_t) * BLOCK_SIZE);
-	
+
 
 	if(block_disk_open(diskname) == -1){
 		return -1;
-	} // If we cannot open disk 
-	
+	} // If we cannot open disk
+
 	if(block_read(SUPERBLOCKOFFSET, superBlock) == -1){
 		return -1;
 	} // If failed to update superblock
-	
+
 	if(block_read(superBlock->root_block_index, rootDir) == -1){
 		return -1;
 	} // Load rootDir
-	
-	
+
+
 	int block_count = block_disk_count(); // Get count for currently opened disk
 	if(block_count != superBlock->num_total_blocks){
 		return -1;
 	} // If the block counts don't match
 
-	
+
 	// Initialize signCheck and add \0
 	char signCheck[9];
 	memcpy(signCheck, superBlock->signature, 8);
@@ -123,7 +123,7 @@ int fs_info(void)
 
 	int data_blk_count = block_disk_count() - (superBlock->num_fat_blocks  + 2);
 	int fat_free_count = 0;
-	
+
 	for (int i = 0; i < (superBlock->num_data_blocks); i++){
 		if(fat[i] == 0){
 			fat_free_count++;
@@ -131,12 +131,12 @@ int fs_info(void)
 	} // Find fat_free_ratio
 	int root_free_count = 0;
 	for (int i = 0; i <FS_FILE_MAX_COUNT; i++){
-		
+
 		if (rootDir->filename[0] == 0){
 			root_free_count++;
 		}
 	}
-	
+
 	printf("FS Info:\n");
 	printf("total_blk_count=%d\n", block_disk_count() );
 	printf("fat_blk_count=%d\n", superBlock->num_fat_blocks);
@@ -145,7 +145,7 @@ int fs_info(void)
 	printf("data_blk_count=%d\n", data_blk_count);
 	printf("fat_free_ratio=%d/%d\n", fat_free_count,data_blk_count);
 	printf("rdir_free_ratio=%d/%d\n", root_free_count,FS_FILE_MAX_COUNT);
-	
+
 	return 0;
 }
 
@@ -161,7 +161,6 @@ int fs_delete(const char *filename)
 
 int fs_ls(void)
 {
-
 	if(block_disk_count() == -1){ //return -1 if no underlying virtual disk was opened.
 		return -1;
 	}
@@ -169,12 +168,13 @@ int fs_ls(void)
 	printf("FS Ls:\n");
 	for(int i = 0; i < FS_FILE_MAX_COUNT; i++){
 		if (rootDir[i].filename[0] != 0)
-    {
+		{
 			printf("file: %s,", (char*)rootDir[i].filename);
 			printf(" size: %u,", rootDir[i].file_size);
 			printf(" data_blk: %u\n", rootDir[i].first_data_block_index);
 		}
 	}
+
 	return 0;
 }
 
