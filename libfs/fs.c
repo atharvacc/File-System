@@ -82,7 +82,7 @@ int fs_mount(const char *diskname)
 			return -1;
 		}
 	}
-	
+
 	mounted = true;
 	return 0;
 }
@@ -151,6 +151,41 @@ int fs_info(void)
 
 int fs_create(const char *filename)
 {
+	if ( strlen(filename)+1 > FS_FILENAME_LEN ||  num_files+1 > FS_FILE_MAX_COUNT){ //return -1 if string @filename is too long or if the root directory already contains* %FS_FILE_MAX_COUNT files
+		return -1;
+	}
+
+	bool null_terminated = false;
+	root_directory *empty_index = NULL;
+
+	for (int x = 0; x < FS_FILENAME_LEN; x++){
+		if (filename[x] == '\0'){
+			null_terminated = true;
+			empty_index = rootDir[x]; //find empty space
+			break;
+		}
+	}
+
+	if(!null_terminated){ //String @filename must be NULL-terminated
+		return -1;
+	}
+
+	for (int i = 0; i < FS_FILE_MAX_COUNT; i++){ //return -1 if a file named @filename already exists
+		if (strcmp((char*)rootDir[i].filename,filename) == 0){//if two strings are same
+			return -1;
+		}
+	}
+
+	if (empty_index == NULL){ //if empty space not found
+		return -1;
+	}
+
+	//else create a new and empty file named @filename in the root directory of the mounted file system
+	strcpy(empty_index->filename, filename);
+	empty_index->file_size = 0;
+	empty_index->first_data_blk_index = 0xFFFF;
+	empty_index->filename[strlen(filename)] = '\0';
+
 	return 0;
 }
 
