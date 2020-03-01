@@ -31,10 +31,15 @@ typedef struct __attribute__((packed)) root_directory {
 	uint8_t unused_padding[10];
 } root_directory;
 
+typdef struct file {
+	root_directory file;
+	size_t offset;
+} file;
+
 static uint16_t *fat;
 
 //Global variables to be used
-
+file files[32];
 superblock *superBlock;
 root_directory *rootDir;
 
@@ -225,13 +230,27 @@ int fs_close(int fd)
 
 int fs_stat(int fd)
 {
+	//return -1 if file descriptor @fd is invalid (out of bounds or not currently open)
+	if(fd < 0 || fd > 32 || files[fd].file == NULL){ //32 is max open count
+		return -1;
+	}
 
-	return 0;
+	return files[fd].file->file_size;//return the current size of file.
 
 }
 
 int fs_lseek(int fd, size_t offset)
 {
+	if(fd < 0 || fd > 32 || files[fd].file == NULL){ //32 is max open count
+		return -1;
+	}
+	if (offset < 0 || offset > files[fd].file->file_size){
+		return -1;
+	}
+
+	//Set the file offset associated with fd to offset
+	files[fd].offset = offset;
+
 	return 0;
 }
 
