@@ -151,6 +151,7 @@ int fs_info(void)
 
 int fs_create(const char *filename)
 {
+	num_files++;
 	/*
 	if ( strlen(filename)+1 > FS_FILENAME_LEN ||  num_files+1 > FS_FILE_MAX_COUNT){ //return -1 if string @filename is too long or if the root directory already contains* %FS_FILE_MAX_COUNT files
 		return -1;
