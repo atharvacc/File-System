@@ -151,8 +151,6 @@ int fs_info(void)
 
 int fs_create(const char *filename)
 {
-	
-	
 	if ( strlen(filename)+1 > FS_FILENAME_LEN ||  num_files+1 > FS_FILE_MAX_COUNT){ //return -1 if string @filename is too long or if the root directory already contains* %FS_FILE_MAX_COUNT files
 		return -1;
 	}
@@ -177,6 +175,7 @@ int fs_create(const char *filename)
 			rootDir[i].first_data_block_index = fat_index;
 			fat[fat_index] = FAT_EOC;
 			strcpy( (char*)rootDir[i].filename , filename);
+			num_open_files++;
 			break;
 		} // If empty slot then can create
 	}// Iterate through every available root dir entry to find an empty slot
