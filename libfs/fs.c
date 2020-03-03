@@ -162,12 +162,12 @@ int fs_create(const char *filename)
 	}//return -1 if a file named @filename already exists
 
 	int fat_index = 0;
-	for (fat_index < superBlock->num_data_blocks; fat_index++;){
+	for (fat_index = 0;fat_index < superBlock->num_data_blocks; fat_index++){
 		if(fat[fat_index ] == 0){
 			break;
 		}
 	}// Find the fat index for an empty slot
-
+	printf("Fat index was %d \n", fat_index);
 	for (int i =0; i < FS_FILE_MAX_COUNT; i ++){
 		if(rootDir[i].filename[0] == '\0'){
 			
