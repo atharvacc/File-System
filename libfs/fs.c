@@ -32,6 +32,12 @@ typedef struct __attribute__((packed)) root_directory {
 	uint8_t unused_padding[10];
 } root_directory;
 
+typedef struct fd{
+	uint8_t filename;
+	uint32_t file_size;
+	int offset;
+} fd;
+
 static int num_files = 0;
 static uint16_t *fat;
 
@@ -39,14 +45,16 @@ static uint16_t *fat;
 
 superblock *superBlock;
 root_directory *rootDir;
+fd *file_descriptor;
 
 static bool mounted = false;
-static int num_open_files = 0;
-//static int num_files = 0;
+int num_open_files = 0;
+
 
 
 int fs_mount(const char *diskname)
 {
+	file_descriptor = malloc(sizeof(struct fd) * FS_OPEN_MAX_COUNT);
 	superBlock =  malloc(sizeof(struct superblock));
 	rootDir = malloc(sizeof(uint32_t) * BLOCK_SIZE);
 	
@@ -240,6 +248,41 @@ int fs_ls(void)
 
 int fs_open(const char *filename)
 {
+	if (filename == NULL){
+		return -1;
+	} // Invalid filename
+
+	if(num_open_files == FS_OPEN_MAX_COUNT){
+		return -1;
+	} // Max number of files open
+
+	int rootDir_idx = 0;
+	for (rootDir_idx = 0; rootDir_idx < FS_FILE_MAX_COUNT; rootDir_idx++){ 
+		if (strcmp((char*)rootDir[rootDir_idx].filename,filename) == 0){//if two strings are same
+			break;
+		}// 
+	} // Check if file exists within the rootDirectory
+
+	if (rootDir_idx == FS_FILE_MAX_COUNT){
+		return -1;
+	} // File doesn't exist
+
+	int fd_idx = 0;
+	for (fd_idx = 0; fd_idx< FS_OPEN_MAX_COUNT; fd_idx++){
+		if (file_descriptor[fd_idx].filename == NULL){
+			break;
+		}
+	}// find first empty slot within the file descript
+
+	file_descriptor[fd_idx].file_size = &(rootDir[rootDir_idx].file_size);
+	file_descriptor[fd_idx].filename = &(rootDir[rootDir_idx].filename);
+	file_descriptor[fd_idx].offset = 0;
+	if(strcmp(file_descriptor[fd_idx].filename, rootDir[rootDir_idx].filename) == 0){
+		printf("Doing what is supposed to \n");
+	}
+	printf("RootDir IDX was %d \n", rootDir_idx);
+	printf("File descriptor idx was %d \n", fd_idx);
+	num_open_files++;
 	return 0;
 }
 
