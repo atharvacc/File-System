@@ -177,6 +177,7 @@ int fs_create(const char *filename)
 			rootDir[i].first_data_block_index = fat_index;
 			fat[fat_index] = FAT_EOC;
 			strcpy( (char*)rootDir[i].filename , filename);
+			break;
 		} // If empty slot then can create
 	}// Iterate through every available root dir entry to find an empty slot
 
