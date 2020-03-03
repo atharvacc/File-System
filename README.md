@@ -1,9 +1,4 @@
 ## To Do's
-
-  
-* Phase 2
-  
-  * fs_delete() - in progress (A) (Done w basic structure. Need to add check once fs_open is done)
   
 * Phase 3
 
@@ -24,6 +19,7 @@
 
 * Phase 2 
   * fs_create() - in progress (C + A)
+  * fs_delete() - in progress (A) (Done)
   
 * Phase 3
   * fs_open() - Done (A)
