@@ -32,6 +32,11 @@ typedef struct __attribute__((packed)) root_directory {
 	uint8_t unused_padding[10];
 } root_directory;
 
+typedef struct file {
+	root_directory* root_dir;
+	size_t offset;
+} file;
+
 static int num_files = 0;
 static uint16_t *fat;
 
@@ -39,14 +44,17 @@ static uint16_t *fat;
 
 superblock *superBlock;
 root_directory *rootDir;
+file *file_descriptor;
 
 static bool mounted = false;
-static int num_open_files = 0;
-//static int num_files = 0;
+int num_open_files = 0;
+
 
 
 int fs_mount(const char *diskname)
 {
+	// Initialize globals
+	file_descriptor = malloc(sizeof(struct file) * FS_OPEN_MAX_COUNT);
 	superBlock =  malloc(sizeof(struct superblock));
 	rootDir = malloc(sizeof(uint32_t) * BLOCK_SIZE);
 	
@@ -172,7 +180,6 @@ int fs_create(const char *filename)
 	printf("Fat index was %d \n", fat_index);
 	for (int i =0; i < FS_FILE_MAX_COUNT; i ++){
 		if(rootDir[i].filename[0] == '\0'){
-			
 			rootDir[i].file_size = 0;
 			rootDir[i].first_data_block_index = fat_index;
 			fat[fat_index] = FAT_EOC;
@@ -186,6 +193,37 @@ int fs_create(const char *filename)
 
 int fs_delete(const char *filename)
 {
+	/* TODO
+	ADD SUPPORT FOR CHECKING OPEN FILES 
+	*/
+	if (filename == NULL){
+		return -1;
+	}// invalid name
+
+	int file_loc = 0;
+	for ( file_loc = 0; file_loc < FS_FILE_MAX_COUNT; file_loc ++){
+		if (strcmp((char*)rootDir[file_loc].filename, filename) == 0){
+			break;
+		}// If match file found
+	}
+	//printf("File loc was %d \n", file_loc);
+	
+	if (file_loc == FS_FILE_MAX_COUNT){
+		return -1;
+	}
+
+	uint16_t data_block_index, temp_hold;
+	data_block_index = rootDir[file_loc].first_data_block_index;
+	while(data_block_index != FAT_EOC){
+		temp_hold = fat[data_block_index];
+		fat[data_block_index] = 0;
+		data_block_index = temp_hold;
+	}// Clear out the fat block
+
+	rootDir[file_loc].file_size = 0;
+	rootDir[file_loc].filename[0] = '\0';
+	rootDir[file_loc].first_data_block_index = 0;
+
 	return 0;
 }
 
@@ -196,7 +234,7 @@ int fs_ls(void)
 		return -1;
 	}
 	/* FS Ls:file: %s, size: %d, data_blk: %d*/
-	printf("FS Ls:");
+	printf("FS Ls:\n");
 	for(int i = 0; i < FS_FILE_MAX_COUNT; i++){
 		if (rootDir[i].filename[0] != '\0')
     	{
@@ -210,7 +248,37 @@ int fs_ls(void)
 
 int fs_open(const char *filename)
 {
-	return 0;
+	if (filename == NULL){
+		return -1;
+	} // Invalid filename
+
+	if(num_open_files == FS_OPEN_MAX_COUNT){
+		return -1;
+	} // Max number of files open
+
+	int rootDir_idx = 0;
+	for (rootDir_idx = 0; rootDir_idx < FS_FILE_MAX_COUNT; rootDir_idx++){ 
+		if (strcmp((char*)rootDir[rootDir_idx].filename,filename) == 0){//if two strings are same
+			break;
+		}// 
+	} // Check if file exists within the rootDirectory
+
+	if (rootDir_idx == FS_FILE_MAX_COUNT){
+		return -1;
+	} // File doesn't exist
+
+	int fd_idx = 0;
+	for (fd_idx = 0; fd_idx< FS_OPEN_MAX_COUNT; fd_idx++){
+		if(file_descriptor[fd_idx].root_dir == NULL ){
+			break;
+		}
+	}// find first empty slot within the file descript
+
+	file_descriptor[fd_idx].root_dir = &(rootDir[rootDir_idx]);
+	file_descriptor[fd_idx].offset = 0;
+	
+	num_open_files++;
+	return fd_idx;
 }
 
 int fs_close(int fd)

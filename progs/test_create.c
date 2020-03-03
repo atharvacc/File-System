@@ -15,7 +15,10 @@
 int main(int argc, char **argv)
 {
     fs_mount("disk.fs");
+    fs_create("myFile1.txt");
     fs_create("myFile.txt");
+    //fs_delete("myFile.txt");
+    fs_open("myFile.txt");
     fs_umount();
     return 0;
 
