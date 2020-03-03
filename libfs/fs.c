@@ -37,7 +37,7 @@ typedef struct file {
 static uint16_t *fat;
 
 //Global variables to be used
-file *files[32];
+file *files;
 superblock *superBlock;
 root_directory *rootDir;
 
@@ -223,7 +223,7 @@ int fs_open(const char *filename)
 
 int fs_close(int fd)
 {
-	if(fd < 0 || fd > 32 || !files[fd].file){ //32 is max open count
+	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || !files[fd].file){ //32 is max open count
 		return -1;
 	}
 
@@ -238,7 +238,7 @@ int fs_close(int fd)
 int fs_stat(int fd)
 {
 	//return -1 if file descriptor @fd is invalid (out of bounds or not currently open)
-	if(fd < 0 || fd > 32 || !files[fd].file){ //32 is max open count
+	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || !files[fd].file){ //32 is max open count
 		return -1;
 	}
 
@@ -248,7 +248,7 @@ int fs_stat(int fd)
 
 int fs_lseek(int fd, size_t offset)
 {
-	if(fd < 0 || fd > 32 || !files[fd].file){ //32 is max open count
+	if(fd < 0 || fd >= FS_OPEN_MAX_COUNT || !files[fd].file){ //32 is max open count
 		return -1;
 	}
 	if (offset < 0 || offset > files[fd].file->file_size){
