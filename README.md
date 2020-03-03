@@ -3,10 +3,10 @@
   
 * Phase 2
   
-  * fs_delete() - in progress (A)
+  * fs_delete() - in progress (A) (Done w basic structure. Need to add check once fs_open is done)
   
 * Phase 3
-  * fs_open() 
+  * fs_open() - IP (A)
   * fs_close() - in progress (C)
   * fs_lseek() - in progress (C)
   * fs_stat() - in progress (C)
