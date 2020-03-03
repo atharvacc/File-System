@@ -132,7 +132,6 @@ int fs_info(void)
 	} // Find fat_free_ratio
 	int root_free_count = 0;
 	for (int i = 0; i <FS_FILE_MAX_COUNT; i++){
-		printf("Here \n");
 		if (rootDir[i].filename[0] == '\0'){
 			root_free_count++;
 		}
