@@ -161,9 +161,9 @@ int fs_create(const char *filename)
 {
 	
 	
-	if ( strlen(filename)+1 > FS_FILENAME_LEN ||  num_files+1 > FS_FILE_MAX_COUNT){ //return -1 if string @filename is too long or if the root directory already contains* %FS_FILE_MAX_COUNT files
+	if ( strlen(filename)+1 > FS_FILENAME_LEN ||  num_files+1 > FS_FILE_MAX_COUNT){ 
 		return -1;
-	}
+	}//return -1 if string @filename is too long or if the root directory already contains* %FS_FILE_MAX_COUNT files
 
 	for (int i = 0; i < FS_FILE_MAX_COUNT; i++){ 
 		if (strcmp((char*)rootDir[i].filename,filename) == 0){//if two strings are same
@@ -212,6 +212,12 @@ int fs_delete(const char *filename)
 		return -1;
 	}
 
+	for(int i = 0; i <FS_OPEN_MAX_COUNT; i++){
+		if(strcmp((char*)file_descriptor[i].root_dir->filename, filename) == 0){
+			printf("FILE WAS OPEN \n");
+			return -1;
+		}
+	}
 	uint16_t data_block_index, temp_hold;
 	data_block_index = rootDir[file_loc].first_data_block_index;
 	while(data_block_index != FAT_EOC){
