@@ -151,6 +151,8 @@ int fs_info(void)
 
 int fs_create(const char *filename)
 {
+	
+	
 	if ( strlen(filename)+1 > FS_FILENAME_LEN ||  num_files+1 > FS_FILE_MAX_COUNT){ //return -1 if string @filename is too long or if the root directory already contains* %FS_FILE_MAX_COUNT files
 		return -1;
 	}
@@ -170,12 +172,11 @@ int fs_create(const char *filename)
 	printf("Fat index was %d \n", fat_index);
 	for (int i =0; i < FS_FILE_MAX_COUNT; i ++){
 		if(rootDir[i].filename[0] == '\0'){
-			
+			num_files++;
 			rootDir[i].file_size = 0;
 			rootDir[i].first_data_block_index = fat_index;
 			fat[fat_index] = FAT_EOC;
 			strcpy( (char*)rootDir[i].filename , filename);
-			num_open_files++;
 			break;
 		} // If empty slot then can create
 	}// Iterate through every available root dir entry to find an empty slot
@@ -185,14 +186,25 @@ int fs_create(const char *filename)
 
 int fs_delete(const char *filename)
 {
+	/* TODO
+	ADD SUPPORT FOR CHECKING OPEN FILES 
+	*/
+	if (filename == NULL){
+		return -1;
+	}// invalid name
+
 	int file_loc = 0;
 	for ( file_loc = 0; file_loc < FS_FILE_MAX_COUNT; file_loc ++){
 		if (strcmp((char*)rootDir[file_loc].filename, filename) == 0){
 			break;
 		}// If match file found
 	}
-	printf("File loc was %d \n", file_loc);
+	//printf("File loc was %d \n", file_loc);
 	
+	if (file_loc == FS_FILE_MAX_COUNT){
+		return -1;
+	}
+
 	uint16_t data_block_index, temp_hold;
 	data_block_index = rootDir[file_loc].first_data_block_index;
 	while(data_block_index != FAT_EOC){
