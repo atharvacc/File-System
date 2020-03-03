@@ -162,7 +162,7 @@ int fs_create(const char *filename)
 	}//return -1 if a file named @filename already exists
 
 	int fat_index = 0;
-	for (fat_index<superBlock->num_data_blocks){
+	for (fat_index < superBlock->num_data_blocks; fat_index++;){
 		if(fat[fat_index ] == 0){
 			break;
 		}
