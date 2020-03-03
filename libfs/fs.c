@@ -31,6 +31,7 @@ typedef struct __attribute__((packed)) root_directory {
 	uint8_t unused_padding[10];
 } root_directory;
 
+static int num_files = 0;
 static uint16_t *fat;
 
 //Global variables to be used
@@ -84,8 +85,6 @@ int fs_mount(const char *diskname)
 	}
 	mounted = true;
 	return 0;
-
-
 }
 
 int fs_umount(void)
@@ -132,8 +131,7 @@ int fs_info(void)
 	} // Find fat_free_ratio
 	int root_free_count = 0;
 	for (int i = 0; i <FS_FILE_MAX_COUNT; i++){
-		
-		if (rootDir->filename[0] == 0){
+		if (rootDir[i].filename[0] == '\0'){
 			root_free_count++;
 		}
 	}
@@ -152,6 +150,22 @@ int fs_info(void)
 
 int fs_create(const char *filename)
 {
+	if ( strlen(filename)+1 > FS_FILENAME_LEN ||  num_files+1 > FS_FILE_MAX_COUNT){ //return -1 if string @filename is too long or if the root directory already contains* %FS_FILE_MAX_COUNT files
+		return -1;
+	}
+
+	for (int i = 0; i < FS_FILE_MAX_COUNT; i++){ 
+		if (strcmp((char*)rootDir[i].filename,filename) == 0){//if two strings are same
+			return -1;
+		}
+	}//return -1 if a file named @filename already exists
+
+	for (int i =0; i < FS_FILE_MAX_COUNT; i ++){
+		
+	}// Iterate through every available root dir entry to find an empty slot
+
+
+	
 	return 0;
 }
 
@@ -170,7 +184,7 @@ int fs_ls(void)
 	printf("FS Ls:");
 	for(int i = 0; i < FS_FILE_MAX_COUNT; i++){
 		if (rootDir[i].filename[0] != '\0')
-    {
+    	{
 			printf("file: %s,", (char*)rootDir[i].filename);
 			printf(" size: %d,", rootDir[i].file_size);
 			printf(" data_blk: %d\n", rootDir[i].first_data_block_index);
