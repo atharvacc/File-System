@@ -202,12 +202,10 @@ int fs_delete(const char *filename)
 	}// Clear out the fat block
 
 	rootDir[file_loc].file_size = 0;
-	rootDir[file_loc].filename[0] = "\0";
+	rootDir[file_loc].filename[0] = '\0';
 	rootDir[file_loc].first_data_block_index = 0;
 
-
-
-	
+	return 0;
 }
 
 int fs_ls(void)
