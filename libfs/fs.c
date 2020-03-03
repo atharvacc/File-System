@@ -32,11 +32,10 @@ typedef struct __attribute__((packed)) root_directory {
 	uint8_t unused_padding[10];
 } root_directory;
 
-typedef struct fd{
-	uint8_t filename;
-	uint32_t file_size;
-	int offset;
-} fd;
+typedef struct file {
+	root_directory* root_dir;
+	size_t offset;
+} file;
 
 static int num_files = 0;
 static uint16_t *fat;
@@ -45,7 +44,7 @@ static uint16_t *fat;
 
 superblock *superBlock;
 root_directory *rootDir;
-fd *file_descriptor;
+file *file_descriptor;
 
 static bool mounted = false;
 int num_open_files = 0;
@@ -54,7 +53,8 @@ int num_open_files = 0;
 
 int fs_mount(const char *diskname)
 {
-	file_descriptor = malloc(sizeof(struct fd) * FS_OPEN_MAX_COUNT);
+	// Initialize globals
+	file_descriptor = malloc(sizeof(struct file) * FS_OPEN_MAX_COUNT);
 	superBlock =  malloc(sizeof(struct superblock));
 	rootDir = malloc(sizeof(uint32_t) * BLOCK_SIZE);
 	
@@ -269,15 +269,14 @@ int fs_open(const char *filename)
 
 	int fd_idx = 0;
 	for (fd_idx = 0; fd_idx< FS_OPEN_MAX_COUNT; fd_idx++){
-		if (file_descriptor[fd_idx].filename == NULL){
+		if(file_descriptor[fd_idx].root_dir == NULL ){
 			break;
 		}
 	}// find first empty slot within the file descript
 
-	file_descriptor[fd_idx].file_size = &(rootDir[rootDir_idx].file_size);
-	file_descriptor[fd_idx].filename = &(rootDir[rootDir_idx].filename);
+	file_descriptor[fd_idx].root_dir = &(rootDir[rootDir_idx]);
 	file_descriptor[fd_idx].offset = 0;
-	if(strcmp(file_descriptor[fd_idx].filename, rootDir[rootDir_idx].filename) == 0){
+	if(strcmp( (char*)file_descriptor[fd_idx].root_dir->filename  , (char*)rootDir[rootDir_idx].filename) == 0){
 		printf("Doing what is supposed to \n");
 	}
 	printf("RootDir IDX was %d \n", rootDir_idx);
