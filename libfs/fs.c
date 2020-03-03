@@ -177,7 +177,7 @@ int fs_create(const char *filename)
 			break;
 		}
 	}// Find the fat index for an empty slot
-	printf("Fat index was %d \n", fat_index);
+	
 	for (int i =0; i < FS_FILE_MAX_COUNT; i ++){
 		if(rootDir[i].filename[0] == '\0'){
 			rootDir[i].file_size = 0;
