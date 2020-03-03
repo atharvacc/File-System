@@ -12,6 +12,7 @@
 
 #define SIGN "ECS150FS"
 #define SUPERBLOCKOFFSET 0x00
+#define FAT_EOC 0xFFFF
 
 
 typedef struct __attribute__((packed)) superblock {
@@ -160,12 +161,23 @@ int fs_create(const char *filename)
 		}
 	}//return -1 if a file named @filename already exists
 
+	int fat_index = 0;
+	for (fat_index<superBlock->num_data_blocks){
+		if(fat[fat_index ] == 0){
+			break;
+		}
+	}// Find the fat index for an empty slot
+
 	for (int i =0; i < FS_FILE_MAX_COUNT; i ++){
-		
+		if(rootDir[i].filename[0] == '\0'){
+			
+			rootDir[i].file_size = 0;
+			rootDir[i].first_data_block_index = fat_index;
+			fat[fat_index] = FAT_EOC;
+			strcpy( (char*)rootDir[i].filename , filename);
+		} // If empty slot then can create
 	}// Iterate through every available root dir entry to find an empty slot
 
-
-	
 	return 0;
 }
 
