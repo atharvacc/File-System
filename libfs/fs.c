@@ -172,7 +172,6 @@ int fs_create(const char *filename)
 	printf("Fat index was %d \n", fat_index);
 	for (int i =0; i < FS_FILE_MAX_COUNT; i ++){
 		if(rootDir[i].filename[0] == '\0'){
-			num_files++;
 			rootDir[i].file_size = 0;
 			rootDir[i].first_data_block_index = fat_index;
 			fat[fat_index] = FAT_EOC;
