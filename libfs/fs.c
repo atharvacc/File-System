@@ -276,13 +276,9 @@ int fs_open(const char *filename)
 
 	file_descriptor[fd_idx].root_dir = &(rootDir[rootDir_idx]);
 	file_descriptor[fd_idx].offset = 0;
-	if(strcmp( (char*)file_descriptor[fd_idx].root_dir->filename  , (char*)rootDir[rootDir_idx].filename) == 0){
-		printf("Doing what is supposed to \n");
-	}
-	printf("RootDir IDX was %d \n", rootDir_idx);
-	printf("File descriptor idx was %d \n", fd_idx);
+	
 	num_open_files++;
-	return 0;
+	return fd_idx;
 }
 
 int fs_close(int fd)
