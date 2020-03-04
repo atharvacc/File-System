@@ -300,13 +300,23 @@ int fs_close(int fd)
 
 int fs_stat(int fd)
 {
-
-	return 0;
+	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || file_descriptor[fd].root_dir == NULL){ 
+		return -1;
+	}//32 is max open count
+	return file_descriptor[fd].root_dir->file_size;
 
 }
 
 int fs_lseek(int fd, size_t offset)
 {
+	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || file_descriptor[fd].root_dir == NULL){ 
+		return -1;
+	}//32 is max open count
+
+	if (offset < 0 || offset > file_descriptor[fd].root_dir->file_size){
+		return -1;
+	} // offset is negative or greater than file size
+	file_descriptor[fd].offset = offset;
 	return 0;
 }
 
