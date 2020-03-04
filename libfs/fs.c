@@ -289,6 +289,12 @@ int fs_open(const char *filename)
 
 int fs_close(int fd)
 {
+	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || file_descriptor[fd].root_dir == NULL){ 
+		return -1;
+	}//32 is max open count
+	file_descriptor[fd].root_dir = NULL;
+	file_descriptor[fd].offset = 0;
+	num_open_files--;
 	return 0;
 }
 
