@@ -30,7 +30,7 @@ typedef struct __attribute__((packed)) root_directory {
 } root_directory;
 
 typedef struct file {
-	root_directory file;
+	root_directory* file;
 	size_t offset;
 } file;
 
