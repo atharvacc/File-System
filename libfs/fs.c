@@ -116,14 +116,11 @@ int fs_umount(void)
 			return -1;
 		}
 	}
-
 	//close the underlying virtual disk file.
 	if(block_disk_close() != 0){ //return -1 if the virtual disk cannot be closed
 		return -1;
 	}
-
 	mounted = false;
-
 	return 0;
 }
 
@@ -214,7 +211,6 @@ int fs_delete(const char *filename)
 
 	for(int i = 0; i <FS_OPEN_MAX_COUNT; i++){
 		if(strcmp((char*)file_descriptor[i].root_dir->filename, filename) == 0){
-			printf("FILE WAS OPEN \n");
 			return -1;
 		}
 	}
@@ -303,7 +299,7 @@ int fs_stat(int fd)
 	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || file_descriptor[fd].root_dir == NULL){ 
 		return -1;
 	}//32 is max open count
-	return file_descriptor[fd].root_dir->file_size;
+	return (int)file_descriptor[fd].root_dir->file_size;
 
 }
 
@@ -327,5 +323,9 @@ int fs_write(int fd, void *buf, size_t count)
 
 int fs_read(int fd, void *buf, size_t count)
 {
+	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || file_descriptor[fd].root_dir == NULL){ 
+		return -1;
+	}//If fd is invalid or file isn't open
+
 	return 0;
 }
