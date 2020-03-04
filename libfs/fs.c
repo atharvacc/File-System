@@ -51,6 +51,10 @@ int num_open_files = 0;
 
 
 
+/* HELPER FUNCTION */
+int get_data_index(int fd, int offset){
+	int offset_idx = file_descriptor[fd].root_dir->first_data_block_index
+}
 int fs_mount(const char *diskname)
 {
 	// Initialize globals
