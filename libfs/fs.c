@@ -322,6 +322,10 @@ int fs_lseek(int fd, size_t offset)
 
 int fs_write(int fd, void *buf, size_t count)
 {
+	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || file_descriptor[fd].root_dir == NULL){
+		return -1;
+	}
+
 	return 0;
 }
 
