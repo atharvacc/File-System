@@ -19,6 +19,7 @@ int main(int argc, char **argv)
     fs_create("myFile.txt");
     //fs_delete("myFile.txt");
     int fd = fs_open("hello_test.txt");
+    printf("Fd was %d \n", fd);
     int size = fs_stat(fd);
     printf("Size was %d \n", size);
     fs_close(fd);
