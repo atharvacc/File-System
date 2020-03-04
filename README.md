@@ -1,11 +1,5 @@
 ## To Do's
   
-* Phase 3
-
-  
-  * fs_lseek() - in progress (C)
-  * fs_stat() - in progress (C)
-
 * Phase 4
   * fs_read() 
   * fs_write()
@@ -24,3 +18,5 @@
 * Phase 3
   * fs_open() - Done (A)
   * fs_close() - in progress (C)
+   * fs_lseek() - in progress (C)
+  * fs_stat() - in progress (C)
