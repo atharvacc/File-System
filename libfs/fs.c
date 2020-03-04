@@ -302,8 +302,8 @@ int fs_close(int fd)
 
 int fs_stat(int fd)
 {
+	
 	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || file_descriptor[fd].root_dir == NULL){ 
-		printf("Here\n");
 		return -1;
 	}//32 is max open count
 	return (int)file_descriptor[fd].root_dir->file_size;
