@@ -8,8 +8,11 @@
 #include "disk.h"
 #include "fs.h"
 
+
+
 #define SIGN "ECS150FS"
 #define SUPERBLOCKOFFSET 0x00
+#define FAT_EOC 0xFFFF
 
 
 typedef struct __attribute__((packed)) superblock {
@@ -30,24 +33,28 @@ typedef struct __attribute__((packed)) root_directory {
 } root_directory;
 
 typedef struct file {
-	root_directory* file;
+	root_directory* root_dir;
 	size_t offset;
 } file;
 
+static int num_files = 0;
 static uint16_t *fat;
 
 //Global variables to be used
-file *files;
+
 superblock *superBlock;
 root_directory *rootDir;
+file *file_descriptor;
 
 static bool mounted = false;
-static int num_open_files = 0;
-static int num_files = 0;
+int num_open_files = 0;
+
 
 
 int fs_mount(const char *diskname)
 {
+	// Initialize globals
+	file_descriptor = malloc(sizeof(struct file) * FS_OPEN_MAX_COUNT);
 	superBlock =  malloc(sizeof(struct superblock));
 	rootDir = malloc(sizeof(uint32_t) * BLOCK_SIZE);
 
@@ -85,7 +92,6 @@ int fs_mount(const char *diskname)
 			return -1;
 		}
 	}
-
 	mounted = true;
 	return 0;
 }
@@ -134,8 +140,7 @@ int fs_info(void)
 	} // Find fat_free_ratio
 	int root_free_count = 0;
 	for (int i = 0; i <FS_FILE_MAX_COUNT; i++){
-
-		if (rootDir->filename[0] == 0){
+		if (rootDir[i].filename[0] == '\0'){
 			root_free_count++;
 		}
 	}
@@ -154,51 +159,83 @@ int fs_info(void)
 
 int fs_create(const char *filename)
 {
-	if ( strlen(filename)+1 > FS_FILENAME_LEN ||  num_files+1 > FS_FILE_MAX_COUNT){ //return -1 if string @filename is too long or if the root directory already contains* %FS_FILE_MAX_COUNT files
+
+
+	if ( strlen(filename)+1 > FS_FILENAME_LEN ||  num_files+1 > FS_FILE_MAX_COUNT){
 		return -1;
-	}
+	}//return -1 if string @filename is too long or if the root directory already contains* %FS_FILE_MAX_COUNT files
 
-	bool null_terminated = false;
-	root_directory *empty_index = NULL;
-
-	for (int x = 0; x < FS_FILENAME_LEN; x++){
-		if (filename[x] == '\0'){
-			null_terminated = true;
-			empty_index = *rootDir[x]; //find empty space
-			break;
-		}
-	}
-
-	if(!null_terminated){ //String @filename must be NULL-terminated
-		return -1;
-	}
-
-	for (int i = 0; i < FS_FILE_MAX_COUNT; i++){ //return -1 if a file named @filename already exists
+	for (int i = 0; i < FS_FILE_MAX_COUNT; i++){
 		if (strcmp((char*)rootDir[i].filename,filename) == 0){//if two strings are same
 			return -1;
 		}
-	}
+	}//return -1 if a file named @filename already exists
 
-	if (empty_index == NULL){ //if empty space not found
-		return -1;
-	}
+	int fat_index = 0;
+	for (fat_index = 0;fat_index < superBlock->num_data_blocks; fat_index++){
+		if(fat[fat_index ] == 0){
+			break;
+		}
+	}// Find the fat index for an empty slot
 
-	//else create a new and empty file named @filename in the root directory of the mounted file system
-	strcpy(empty_index->filename, filename);
-	empty_index->file_size = 0;
-	empty_index->first_data_block_index = 0xFFFF;
-	empty_index->filename[strlen(filename)] = '\0';
+	for (int i =0; i < FS_FILE_MAX_COUNT; i ++){
+		if(rootDir[i].filename[0] == '\0'){
+			rootDir[i].file_size = 0;
+			rootDir[i].first_data_block_index = fat_index;
+			fat[fat_index] = FAT_EOC;
+			strcpy( (char*)rootDir[i].filename , filename);
+			break;
+		} // If empty slot then can create
+	}// Iterate through every available root dir entry to find an empty slot
 
 	return 0;
 }
 
 int fs_delete(const char *filename)
 {
+	/* TODO
+	ADD SUPPORT FOR CHECKING OPEN FILES
+	*/
+	if (filename == NULL){
+		return -1;
+	}// invalid name
+
+	int file_loc = 0;
+	for ( file_loc = 0; file_loc < FS_FILE_MAX_COUNT; file_loc ++){
+		if (strcmp((char*)rootDir[file_loc].filename, filename) == 0){
+			break;
+		}// If match file found
+	}
+	//printf("File loc was %d \n", file_loc);
+
+	if (file_loc == FS_FILE_MAX_COUNT){
+		return -1;
+	}
+
+	for(int i = 0; i <FS_OPEN_MAX_COUNT; i++){
+		if(strcmp((char*)file_descriptor[i].root_dir->filename, filename) == 0){
+			printf("FILE WAS OPEN \n");
+			return -1;
+		}
+	}
+	uint16_t data_block_index, temp_hold;
+	data_block_index = rootDir[file_loc].first_data_block_index;
+	while(data_block_index != FAT_EOC){
+		temp_hold = fat[data_block_index];
+		fat[data_block_index] = 0;
+		data_block_index = temp_hold;
+	}// Clear out the fat block
+
+	rootDir[file_loc].file_size = 0;
+	rootDir[file_loc].filename[0] = '\0';
+	rootDir[file_loc].first_data_block_index = 0;
+
 	return 0;
 }
 
 int fs_ls(void)
 {
+
 	if(block_disk_count() == -1){ //return -1 if no underlying virtual disk was opened.
 		return -1;
 	}
@@ -206,58 +243,80 @@ int fs_ls(void)
 	printf("FS Ls:\n");
 	for(int i = 0; i < FS_FILE_MAX_COUNT; i++){
 		if (rootDir[i].filename[0] != '\0')
-		{
+    	{
 			printf("file: %s,", (char*)rootDir[i].filename);
 			printf(" size: %d,", rootDir[i].file_size);
 			printf(" data_blk: %d\n", rootDir[i].first_data_block_index);
 		}
 	}
-
 	return 0;
 }
 
 int fs_open(const char *filename)
 {
-	return 0;
+	if (filename == NULL){
+		return -1;
+	} // Invalid filename
+
+	if(num_open_files == FS_OPEN_MAX_COUNT){
+		return -1;
+	} // Max number of files open
+
+	int rootDir_idx = 0;
+	for (rootDir_idx = 0; rootDir_idx < FS_FILE_MAX_COUNT; rootDir_idx++){
+		if (strcmp((char*)rootDir[rootDir_idx].filename,filename) == 0){//if two strings are same
+			break;
+		}//
+	} // Check if file exists within the rootDirectory
+
+	if (rootDir_idx == FS_FILE_MAX_COUNT){
+		return -1;
+	} // File doesn't exist
+
+	int fd_idx = 0;
+	for (fd_idx = 0; fd_idx< FS_OPEN_MAX_COUNT; fd_idx++){
+		if(file_descriptor[fd_idx].root_dir == NULL ){
+			break;
+		}
+	}// find first empty slot within the file descript
+
+	file_descriptor[fd_idx].root_dir = &(rootDir[rootDir_idx]);
+	file_descriptor[fd_idx].offset = 0;
+
+	num_open_files++;
+	return fd_idx;
 }
 
 int fs_close(int fd)
 {
-	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || !files[fd].file){ //32 is max open count
+	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || file_descriptor[fd].root_dir == NULL){
 		return -1;
-	}
-
-	//close fd
-	files[fd].offset	= 0;
-	files[fd].file = NULL;
-
+	}//32 is max open count
+	file_descriptor[fd].root_dir = NULL;
+	file_descriptor[fd].offset = 0;
 	num_open_files--;
 	return 0;
 }
 
 int fs_stat(int fd)
 {
-	//return -1 if file descriptor @fd is invalid (out of bounds or not currently open)
-	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || !files[fd].file){ //32 is max open count
+	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || file_descriptor[fd].root_dir == NULL){
 		return -1;
-	}
-
-	return files[fd].file->file_size;//return the current size of file.
+	}//32 is max open count
+	return file_descriptor[fd].root_dir->file_size;
 
 }
 
 int fs_lseek(int fd, size_t offset)
 {
-	if(fd < 0 || fd >= FS_OPEN_MAX_COUNT || !files[fd].file){ //32 is max open count
+	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || file_descriptor[fd].root_dir == NULL){
 		return -1;
-	}
-	if (offset < 0 || offset > files[fd].file->file_size){
+	}//32 is max open count
+
+	if (offset < 0 || offset > file_descriptor[fd].root_dir->file_size){
 		return -1;
-	}
-
-	//Set the file offset associated with fd to offset
-	files[fd].offset = offset;
-
+	} // offset is negative or greater than file size
+	file_descriptor[fd].offset = offset;
 	return 0;
 }
 
