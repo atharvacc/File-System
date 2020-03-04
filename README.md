@@ -2,7 +2,7 @@
   
 * Phase 3
 
-  * fs_close() - in progress (C)
+  
   * fs_lseek() - in progress (C)
   * fs_stat() - in progress (C)
 
@@ -23,3 +23,4 @@
   
 * Phase 3
   * fs_open() - Done (A)
+  * fs_close() - in progress (C)
