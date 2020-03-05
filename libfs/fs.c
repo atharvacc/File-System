@@ -325,8 +325,16 @@ int fs_write(int fd, void *buf, size_t count)
 	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || file_descriptor[fd].root_dir == NULL){
 		return -1;
 	}
+	int num_bytes_written = 0;
+	void *buffer = (void*)malloc(BLOCK_SIZE);
+	file write_to_file = file_descriptor[fd];
 
-	return 0;
+	//write to data blocks
+	for (int i = 0; i < (count/(BLOCK_SIZE+1)) ;i++){
+
+	}
+
+	return num_bytes_written; //return the number of bytes actually written.
 }
 
 int fs_read(int fd, void *buf, size_t count)
