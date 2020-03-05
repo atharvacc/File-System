@@ -334,6 +334,10 @@ int fs_write(int fd, void *buf, size_t count)
 
 	}
 
+	//check if needs extension
+
+	//update offset
+
 	return num_bytes_written; //return the number of bytes actually written.
 }
 
