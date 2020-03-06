@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include "disk.h"
 #include "fs.h"
@@ -50,13 +51,17 @@ static bool mounted = false;
 int num_open_files = 0;
 
 
-
-/* HELPER FUNCTION 
-int get_data_index(int fd, int offset){
-	int offset_idx = file_descriptor[fd].root_dir->first_data_block_index;
-	
+int fs_get_block_from_offset(int first_data_block_index, int offset){
+	int block_no = first_data_block_index;
+	int offsetCpy = offset;
+	while(offsetCpy >= BLOCK_SIZE){
+		int newBlock = fat[block_no];
+		if(newBlock == 0 || newBlock == FAT_EOC){
+			
+		}
+	}
 }
-*/
+
 int fs_mount(const char *diskname)
 {
 	// Initialize globals
@@ -162,8 +167,6 @@ int fs_info(void)
 
 int fs_create(const char *filename)
 {
-	
-	
 	if ( strlen(filename)+1 > FS_FILENAME_LEN ||  num_files+1 > FS_FILE_MAX_COUNT){ 
 		return -1;
 	}//return -1 if string @filename is too long or if the root directory already contains* %FS_FILE_MAX_COUNT files
@@ -328,11 +331,36 @@ int fs_write(int fd, void *buf, size_t count)
 	return 0;
 }
 
+
 int fs_read(int fd, void *buf, size_t count)
 {
 	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || file_descriptor[fd].root_dir == NULL){ 
 		return -1;
 	}//If fd is invalid or file isn't open
+	if (file_descriptor[fd].offset  == file_descriptor[fd].root_dir->file_size){
+		return 0;
+	}// if offset is equal to filesize, then can't read 
+	int fat_idx = file_descriptor[fd].root_dir->first_data_block_index;
+	int size = file_descriptor[fd].root_dir->file_size;
+	int offset = file_descriptor[fd].offset;
+	if(offset + count > size){
+		count = size - offset;
+	}
+	int totBlocks = ceil(count/BLOCK_SIZE);
+	int* bounceBuffer = (int*) malloc(BLOCK_SIZE* sizeof(int) * totBlocks);
 
-	return 0;
+	while(BLOCK_SIZE< offset){
+		fat_idx = fat[fat_idx];
+		offset = offset - BLOCK_SIZE;
+	}// find the fat block from where we want to start reading and find how deep into that block we are   
+
+	 for (int i = 0; i <totBlocks; i++){
+		 block_read(fat_idx, bounceBuffer + i * BLOCK_SIZE);
+		 fat_idx = fat[fat_idx];
+	 }
+
+	 memcpy(buf, bounceBuffer+ offset, count);
+	
+	file_descriptor[fd].offset += count;
+	return count;
 }
