@@ -219,8 +219,8 @@ void thread_fs_add(void *arg)
 	if (fs_umount())
 		die("Cannot unmount diskname");
 
-	printf("Wrote file '%s' (%d/%zu bytes)\n", filename, written,
-		   st.st_size);
+	//printf("Wrote file '%s' (%d/%zu bytes)\n", filename, written,
+	//	   st.st_size);
 
 	munmap(buf, st.st_size);
 	close(fd);
