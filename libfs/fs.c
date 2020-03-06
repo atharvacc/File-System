@@ -397,7 +397,7 @@ int fs_write(int fd, void *buf, size_t count)
 		}
 		block_write(fat_idx + superBlock->data_block_index, bounceBuffer);
 	}
-
+	free(bounceBuffer);
 	file_descriptor[fd].root_dir->file_size += count;
 	file_descriptor[fd].offset += count;
 	
