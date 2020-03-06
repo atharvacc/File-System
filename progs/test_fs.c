@@ -169,7 +169,7 @@ void thread_fs_add(void *arg)
 	char *diskname, *filename, *buf;
 	int fd, fs_fd;
 	struct stat st;
-	int written;
+	//int written;
 
 	if (t_arg->argc < 2)
 		die("Usage: <diskname> <host filename>");
