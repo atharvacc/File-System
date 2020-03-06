@@ -366,7 +366,7 @@ int fs_write(int fd, void *buf, size_t count)
 	//printf("Number of blocks for writing was  %d \n", totBlocks);
 	//Assign bounce buffer and read temporarily
 	//uint8_t *bounceBuffer = malloc(totBlocks * BLOCK_SIZE);
-	int* bounceBuffer = (int *) malloc( sizeof(int *) * totBlocks * BLOCK_SIZE);
+	char* bounceBuffer = (char *) malloc( sizeof(char) * totBlocks * BLOCK_SIZE);
 	block_read(superBlock->data_block_index + fat_idx, bounceBuffer);
 	int offset_block = (int) (file_descriptor[fd].offset % BLOCK_SIZE);
 	//printf("Offset block was %d \n", offset_block);
