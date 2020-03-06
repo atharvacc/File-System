@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -o xtrace
+#set -o xtrace
 
 
 echo CREATING FILES
@@ -9,7 +9,7 @@ rm -rf disk.fs
 fs_make.x disk.fs 4096
 fs_make.x disk1.fs 4096
 
-echo Testing add    (will give error as of now )
+echo Testing add 
 echo -----------------------
 ## Test add 
 fs_ref.x add disk.fs hello_test.txt 
@@ -71,3 +71,4 @@ fs_ref.x ls disk.fs > ref_o
 diff ref_o my_o
 rm -rf ref_o my_o
 
+echo DONE
