@@ -341,11 +341,11 @@ int fs_write(int fd, void *buf, size_t count)
 	int offset = file_descriptor[fd].offset;
 	int fat_idx = 0;
 	while(BLOCK_SIZE< offset){
-		fat_idx = fat[fat_idx];
+		fat_idx = (int) fat[fat_idx];
 		offset = offset - BLOCK_SIZE;
 	}// Find the current fat block for the offset
 
-	printf("current fat_idx was %d \n", fat_idx);
+	//printf("current fat_idx was %d \n", fat_idx);
 	/* Find  the number of blocks needed for writing */
 	int totBlocks = 0;
 	if( count == 0){
@@ -362,7 +362,7 @@ int fs_write(int fd, void *buf, size_t count)
 			BytesLeft = BytesLeft - BLOCK_SIZE;
 		}
 	}
-	printf("Number of blocks for writing was  %d \n", totBlocks);
+	//printf("Number of blocks for writing was  %d \n", totBlocks);
 	//Assign bounce buffer and read temporarily
 	//uint8_t *bounceBuffer = malloc(totBlocks * BLOCK_SIZE);
 	int* bounceBuffer = malloc( sizeof(int) * totBlocks * BLOCK_SIZE);
