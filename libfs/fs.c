@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include "disk.h"
 #include "fs.h"
@@ -48,6 +49,7 @@ file *file_descriptor;
 
 static bool mounted = false;
 int num_open_files = 0;
+
 
 
 
@@ -116,14 +118,11 @@ int fs_umount(void)
 			return -1;
 		}
 	}
-
 	//close the underlying virtual disk file.
 	if(block_disk_close() != 0){ //return -1 if the virtual disk cannot be closed
 		return -1;
 	}
-
 	mounted = false;
-
 	return 0;
 }
 
@@ -159,8 +158,6 @@ int fs_info(void)
 
 int fs_create(const char *filename)
 {
-	
-	
 	if ( strlen(filename)+1 > FS_FILENAME_LEN ||  num_files+1 > FS_FILE_MAX_COUNT){ 
 		return -1;
 	}//return -1 if string @filename is too long or if the root directory already contains* %FS_FILE_MAX_COUNT files
@@ -187,37 +184,39 @@ int fs_create(const char *filename)
 			break;
 		} // If empty slot then can create
 	}// Iterate through every available root dir entry to find an empty slot
-
+	num_files++;
 	return 0;
 }
 
 int fs_delete(const char *filename)
 {
-	/* TODO
-	ADD SUPPORT FOR CHECKING OPEN FILES 
-	*/
+	
 	if (filename == NULL){
 		return -1;
 	}// invalid name
-
+	
 	int file_loc = 0;
 	for ( file_loc = 0; file_loc < FS_FILE_MAX_COUNT; file_loc ++){
 		if (strcmp((char*)rootDir[file_loc].filename, filename) == 0){
+		
 			break;
 		}// If match file found
 	}
-	//printf("File loc was %d \n", file_loc);
+	
 	
 	if (file_loc == FS_FILE_MAX_COUNT){
 		return -1;
 	}
 
 	for(int i = 0; i <FS_OPEN_MAX_COUNT; i++){
+		if(file_descriptor[i].root_dir->filename != NULL){
 		if(strcmp((char*)file_descriptor[i].root_dir->filename, filename) == 0){
-			printf("FILE WAS OPEN \n");
 			return -1;
 		}
-	}
+		}
+	} // Check if the file is open
+
+	
 	uint16_t data_block_index, temp_hold;
 	data_block_index = rootDir[file_loc].first_data_block_index;
 	while(data_block_index != FAT_EOC){
@@ -226,10 +225,11 @@ int fs_delete(const char *filename)
 		data_block_index = temp_hold;
 	}// Clear out the fat block
 
+	
 	rootDir[file_loc].file_size = 0;
 	rootDir[file_loc].filename[0] = '\0';
 	rootDir[file_loc].first_data_block_index = 0;
-
+	num_files--;
 	return 0;
 }
 
@@ -300,10 +300,11 @@ int fs_close(int fd)
 
 int fs_stat(int fd)
 {
+	
 	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || file_descriptor[fd].root_dir == NULL){ 
 		return -1;
 	}//32 is max open count
-	return file_descriptor[fd].root_dir->file_size;
+	return (int)file_descriptor[fd].root_dir->file_size;
 
 }
 
@@ -325,7 +326,33 @@ int fs_write(int fd, void *buf, size_t count)
 	return 0;
 }
 
+
 int fs_read(int fd, void *buf, size_t count)
 {
-	return 0;
+	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || file_descriptor[fd].root_dir == NULL){ 
+		return -1;
+	}//If fd is invalid or file isn't open
+	
+	int fat_idx = file_descriptor[fd].root_dir->first_data_block_index;
+	int size = file_descriptor[fd].root_dir->file_size;
+	int offset = file_descriptor[fd].offset;
+	
+	if(offset + count > size){
+		count = size - offset;
+	}
+	
+	int totBlocks = ceil(count/BLOCK_SIZE) + 1;
+	int* bounceBuffer = (int*) malloc( sizeof(int) * totBlocks * BLOCK_SIZE);
+
+	while(BLOCK_SIZE< offset){
+		fat_idx = fat[fat_idx];
+		offset = offset - BLOCK_SIZE;
+	}// find the fat block from where we want to start reading and find how deep into that block we are   
+	 for (int i = 0; i <totBlocks; i++){
+		 block_read(fat_idx + superBlock->data_block_index , bounceBuffer + (i * BLOCK_SIZE) );
+		 fat_idx = fat[fat_idx];
+	 }
+	 memcpy(buf, bounceBuffer+ offset, count);
+	file_descriptor[fd].offset += count;
+	return count;
 }
