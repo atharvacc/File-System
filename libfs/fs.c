@@ -369,7 +369,7 @@ int fs_write(int fd, void *buf, size_t count)
 	}
 	//printf("Number of blocks for writing was  %d \n", totBlocks);
 	//Assign bounce buffer and read temporarily
-	//uint8_t *bounceBuffer = malloc(totBlocks * BLOCK_SIZE);
+	
 	char* bounceBuffer = (char *) malloc( sizeof(char) * totBlocks * BLOCK_SIZE);
 	block_read(superBlock->data_block_index + fat_idx, bounceBuffer);
 	int offset_block = (int) (file_descriptor[fd].offset % BLOCK_SIZE);
@@ -384,7 +384,7 @@ int fs_write(int fd, void *buf, size_t count)
 		} // No space 
 		fat[newSlot] = FAT_EOC;
 		
-		fat_idx = newSlot;
+		//fat_idx = newSlot;
 	}
 
 	block_write(fat_idx + superBlock->data_block_index, bounceBuffer);
