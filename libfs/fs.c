@@ -338,7 +338,8 @@ int fs_read(int fd, void *buf, size_t count)
 	}
 	*/
 	int totBlocks = ceil(count/BLOCK_SIZE);
-	char* bounceBuffer = (char*) malloc(BLOCK_SIZE* sizeof(char) * totBlocks);
+	print("totBlocks was %d \n", totBlocks);
+	char* bounceBuffer = (char*) malloc( sizeof(char) * totBlocks * BLOCK_SIZE);
 
 	while(BLOCK_SIZE< offset){
 		fat_idx = fat[fat_idx];
@@ -346,7 +347,7 @@ int fs_read(int fd, void *buf, size_t count)
 	}// find the fat block from where we want to start reading and find how deep into that block we are   
 
 	 for (int i = 0; i <totBlocks; i++){
-		 block_read(fat_idx, bounceBuffer + i * BLOCK_SIZE);
+		 block_read(fat_idx + superBlock->data_block_index , bounceBuffer + (i * BLOCK_SIZE) );
 		 fat_idx = fat[fat_idx];
 	 }
 
