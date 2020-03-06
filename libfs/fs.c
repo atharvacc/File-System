@@ -345,7 +345,7 @@ int fs_write(int fd, void *buf, size_t count)
 		offset = offset - BLOCK_SIZE;
 	}// Find the current fat block for the offset
 
-	printf("current fat_idx was %d \n", fat_idx);
+	//printf("current fat_idx was %d \n", fat_idx);
 	/* Find  the number of blocks needed for writing */
 	int totBlocks = 0;
 	if( count == 0){
@@ -362,15 +362,15 @@ int fs_write(int fd, void *buf, size_t count)
 			BytesLeft = BytesLeft - BLOCK_SIZE;
 		}
 	}
-	printf("Number of blocks for writing was  %d \n", totBlocks);
+	//printf("Number of blocks for writing was  %d \n", totBlocks);
 	//Assign bounce buffer and read temporarily
-	//uint8_t *bounceBuffer = malloc(totBlocks * BLOCK_SIZE);
+	
 	int* bounceBuffer = malloc( sizeof(int) * totBlocks * BLOCK_SIZE);
 	block_read(superBlock->data_block_index + fat_idx, bounceBuffer);
 	int offset_block = file_descriptor[fd].offset % BLOCK_SIZE;
 	memcpy(&bounceBuffer[offset_block], buf, count);
 
-	printf("Done copying to bounc buffer from  buffer \n");
+	//printf("Done copying to bounc buffer from  buffer \n");
 	if(file_descriptor[fd].root_dir->file_size == 0){
 		int newSlot = find_first_available_data();
 		if (newSlot == -1){
