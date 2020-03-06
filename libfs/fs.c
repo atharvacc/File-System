@@ -363,7 +363,8 @@ int fs_write(int fd, void *buf, size_t count)
 	}
 	
 	//Assign bounce buffer and read temporarily
-	int* bounceBuffer = (int*) malloc( sizeof(int) * totBlocks * BLOCK_SIZE);
+	uint8_t *bounceBuffer = malloc(totBlocks * BLOCK_SIZE);
+	//int* bounceBuffer = malloc( sizeof(int) * totBlocks * BLOCK_SIZE);
 	block_read(superBlock->data_block_index + fat_idx, bounceBuffer);
 	int offset_block = file_descriptor[fd].offset % BLOCK_SIZE;
 	memcpy(&bounceBuffer[offset_block], buf, count);
