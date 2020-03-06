@@ -136,7 +136,7 @@ int fs_umount(void)
 	mounted = false;
 	free(rootDir);
 	free(superBlock);
-	free(fat);
+	
 	free(file_descriptor);
 	return 0;
 }
