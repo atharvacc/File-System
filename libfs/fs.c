@@ -50,13 +50,24 @@ file *file_descriptor;
 static bool mounted = false;
 int num_open_files = 0;
 
-
-
+/* HELPER FUNCTION TO FIND THE FIRST AVAIALBLE BLOCK */
+int find_first_available_data(){
+	int fat_index = 0;
+	for (fat_index = 0;fat_index < superBlock->num_data_blocks; fat_index++){
+		if(fat[fat_index ] == 0){
+			break;
+		}
+	}
+	if (fat_index == superBlock->num_data_blocks){
+		return -1;
+	}
+	return fat_index;
+}
 
 int fs_mount(const char *diskname)
 {
 	// Initialize globals
-	file_descriptor = malloc(sizeof(struct file) * FS_OPEN_MAX_COUNT);
+	file_descriptor = malloc(sizeof(struct file) * (FS_OPEN_MAX_COUNT + 1)) ;
 	superBlock =  malloc(sizeof(struct superblock));
 	rootDir = malloc(sizeof(uint32_t) * BLOCK_SIZE);
 	
@@ -88,7 +99,7 @@ int fs_mount(const char *diskname)
 		return -1;
 	} // If signature doesn't match as per specifications
 
-	fat = malloc(sizeof(uint16_t) * superBlock->num_fat_blocks * BLOCK_SIZE);
+	fat = malloc(sizeof(uint16_t) * (superBlock->num_fat_blocks+5) * BLOCK_SIZE);
 	for(int i = 0; i < superBlock->num_fat_blocks; i++){
 		if(block_read(i+1, fat + (BLOCK_SIZE*i)) == -1 ){
 			return -1;
@@ -123,6 +134,10 @@ int fs_umount(void)
 		return -1;
 	}
 	mounted = false;
+	free(rootDir);
+	free(superBlock);
+	
+	free(file_descriptor);
 	return 0;
 }
 
@@ -323,9 +338,77 @@ int fs_lseek(int fd, size_t offset)
 
 int fs_write(int fd, void *buf, size_t count)
 {
-	return 0;
-}
+	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || file_descriptor[fd].root_dir == NULL){
+		return -1;
+	} // if fd is wrong , or the file doesnt exist
 
+	int offset = file_descriptor[fd].offset;
+	int fat_idx = 0;
+	while(BLOCK_SIZE< offset){
+		fat_idx = (int) fat[fat_idx];
+		offset = offset - BLOCK_SIZE;
+	}// Find the current fat block for the offset
+
+	//printf("current fat_idx was %d \n", fat_idx);
+	/* Find  the number of blocks needed for writing */
+	int totBlocks = 0;
+	if( count == 0){
+		totBlocks = 0;
+		return 0;
+	}
+	else if (count != 0){
+		int totBlocks = 1;
+		int BytesLeft = count;
+		int blockoffset = (int) (file_descriptor[fd].offset % BLOCK_SIZE);
+		//printf("Offset block was %d \n", blockoffset);
+		BytesLeft = BytesLeft - (BLOCK_SIZE - blockoffset);
+		while(BytesLeft > 0){
+			totBlocks++;
+			BytesLeft = BytesLeft - BLOCK_SIZE;
+		}
+	}
+	//printf("Number of blocks for writing was  %d \n", totBlocks);
+	//Assign bounce buffer and read temporarily
+	//uint8_t *bounceBuffer = malloc(totBlocks * BLOCK_SIZE);
+	char* bounceBuffer = (char *) malloc( sizeof(char) * totBlocks * BLOCK_SIZE);
+	block_read(superBlock->data_block_index + fat_idx, bounceBuffer);
+	int offset_block = (int) (file_descriptor[fd].offset % BLOCK_SIZE);
+	//printf("Offset block was %d \n", offset_block);
+	memcpy(&bounceBuffer[offset_block], buf, count);
+
+	//printf("Done copying to bounc buffer from  buffer \n");
+	if(file_descriptor[fd].root_dir->file_size == 0){
+		int newSlot = find_first_available_data();
+		if (newSlot == -1){
+			return -1;
+		} // No space 
+		fat[newSlot] = FAT_EOC;
+		
+		fat_idx = newSlot;
+	}
+
+	block_write(fat_idx + superBlock->data_block_index, bounceBuffer);
+	totBlocks--;
+
+	for (int i = 0; i <totBlocks; i++){
+		fat_idx = fat[fat_idx];
+		if (fat_idx == FAT_EOC){
+				int newSlot = find_first_available_data();
+				if (newSlot == -1){
+					return -1;
+				}
+				fat[newSlot] = FAT_EOC;
+				fat[fat_idx] = newSlot;
+				fat_idx = newSlot;
+		}
+		block_write(fat_idx + superBlock->data_block_index, bounceBuffer);
+	}
+	free(bounceBuffer);
+	file_descriptor[fd].root_dir->file_size += count;
+	file_descriptor[fd].offset += count;
+	
+	return count; //return the number of bytes actually written.
+}
 
 int fs_read(int fd, void *buf, size_t count)
 {
