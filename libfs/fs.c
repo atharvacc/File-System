@@ -379,7 +379,7 @@ int fs_write(int fd, void *buf, size_t count)
 			return -1;
 		} // No space 
 		fat[newSlot] = FAT_EOC;
-		file_descriptor[fd].root_dir->first_data_block_index = newSlot;
+		
 		fat_idx = newSlot;
 	}
 
