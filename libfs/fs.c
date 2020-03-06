@@ -356,7 +356,7 @@ int fs_write(int fd, void *buf, size_t count)
 		int totBlocks = 1;
 		int BytesLeft = count;
 		int blockoffset = file_descriptor[fd].offset % BLOCK_SIZE;
-		printf("Offset block was %d \n", blockoffset);
+		//printf("Offset block was %d \n", blockoffset);
 		BytesLeft = BytesLeft - (BLOCK_SIZE - blockoffset);
 		while(BytesLeft > 0){
 			totBlocks++;
