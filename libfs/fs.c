@@ -190,20 +190,19 @@ int fs_create(const char *filename)
 
 int fs_delete(const char *filename)
 {
-	/* TODO
-	ADD SUPPORT FOR CHECKING OPEN FILES 
-	*/
+	
 	if (filename == NULL){
 		return -1;
 	}// invalid name
-
+	printf("No invalid name \n");
 	int file_loc = 0;
 	for ( file_loc = 0; file_loc < FS_FILE_MAX_COUNT; file_loc ++){
 		if (strcmp((char*)rootDir[file_loc].filename, filename) == 0){
+		printf("Matchin file name was found at loc %d \n", file_loc);
 			break;
 		}// If match file found
 	}
-	//printf("File loc was %d \n", file_loc);
+	
 	
 	if (file_loc == FS_FILE_MAX_COUNT){
 		return -1;
@@ -214,6 +213,7 @@ int fs_delete(const char *filename)
 			return -1;
 		}
 	}
+	printf(" NO issues with location being too far away or non existance of file \n");
 	uint16_t data_block_index, temp_hold;
 	data_block_index = rootDir[file_loc].first_data_block_index;
 	while(data_block_index != FAT_EOC){
@@ -222,10 +222,12 @@ int fs_delete(const char *filename)
 		data_block_index = temp_hold;
 	}// Clear out the fat block
 
+	printf("Cleared out FAT BLOCK \n");
 	rootDir[file_loc].file_size = 0;
 	rootDir[file_loc].filename[0] = '\0';
 	rootDir[file_loc].first_data_block_index = 0;
 
+	printf("Cleared out rootDir \n");
 	return 0;
 }
 
