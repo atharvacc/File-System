@@ -327,9 +327,9 @@ int fs_write(int fd, void *buf, size_t count)
 	}
 
 	//check if needs extension
-	if(write_to_file.root_dir->size < write_to_file.offset + count){
-		int fixe_size= ;
-		count = fixe_size - write_to_file.offset;
+	if(write_to_file.root_dir->file_size < write_to_file.offset + count){
+		int fix_size= ;
+		count = fix_size - write_to_file.offset;
 	}
 
 	int num_bytes_written = 0;
