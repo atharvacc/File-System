@@ -184,7 +184,7 @@ int fs_create(const char *filename)
 			break;
 		} // If empty slot then can create
 	}// Iterate through every available root dir entry to find an empty slot
-
+	num_files++;
 	return 0;
 }
 
@@ -229,8 +229,7 @@ int fs_delete(const char *filename)
 	rootDir[file_loc].file_size = 0;
 	rootDir[file_loc].filename[0] = '\0';
 	rootDir[file_loc].first_data_block_index = 0;
-
-	
+	num_files--;
 	return 0;
 }
 
@@ -349,14 +348,11 @@ int fs_read(int fd, void *buf, size_t count)
 		fat_idx = fat[fat_idx];
 		offset = offset - BLOCK_SIZE;
 	}// find the fat block from where we want to start reading and find how deep into that block we are   
-
 	 for (int i = 0; i <totBlocks; i++){
 		 block_read(fat_idx + superBlock->data_block_index , bounceBuffer + (i * BLOCK_SIZE) );
 		 fat_idx = fat[fat_idx];
 	 }
-
 	 memcpy(buf, bounceBuffer+ offset, count);
-	
 	file_descriptor[fd].offset += count;
 	return count;
 }
