@@ -20,7 +20,7 @@ int main(int argc, char **argv)
     //fs_delete("myFile.txt");
     int fd = fs_open("hello_test.txt");
     
-    int size = fs_stat(fd);
+    //int size = fs_stat(fd);
    
     fs_close(fd);
     //fs_delete("myFile.txt");
