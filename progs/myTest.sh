@@ -51,8 +51,8 @@ rm -rf ref_o my_o
 echo Testing stat
 echo -----------------------
 ## Test stat
-test_fs.x stat disk.fs > my_o
-fs_ref.x stat disk.fs > ref_o
+test_fs.x stat disk.fs hello_test.txt > my_o
+fs_ref.x stat disk.fs hello_test.txt > ref_o
 diff ref_o my_o
 rm -rf ref_o my_o
 
