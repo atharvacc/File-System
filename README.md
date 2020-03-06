@@ -1,7 +1,6 @@
 ## To Do's
   
 * Phase 4
-  * fs_read() 
   * fs_write()
   
 ## Done 
@@ -20,3 +19,6 @@
   * fs_close() - in progress (C)
    * fs_lseek() - in progress (C)
   * fs_stat() - in progress (C)
+
+* Phase 4
+  * fs_read() - Done(A)
