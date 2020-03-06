@@ -328,9 +328,7 @@ int fs_read(int fd, void *buf, size_t count)
 	if(fd < 0 || fd > FS_OPEN_MAX_COUNT || file_descriptor[fd].root_dir == NULL){ 
 		return -1;
 	}//If fd is invalid or file isn't open
-	if (file_descriptor[fd].offset  == file_descriptor[fd].root_dir->file_size){
-		return 0;
-	}// if offset is equal to filesize, then can't read 
+	
 	int fat_idx = file_descriptor[fd].root_dir->first_data_block_index;
 	int size = file_descriptor[fd].root_dir->file_size;
 	int offset = file_descriptor[fd].offset;
