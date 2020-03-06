@@ -338,7 +338,7 @@ int fs_read(int fd, void *buf, size_t count)
 	}
 	*/
 	int totBlocks = ceil(count/BLOCK_SIZE);
-	print("totBlocks was %d \n", totBlocks);
+	printf("totBlocks was %d \n", totBlocks);
 	char* bounceBuffer = (char*) malloc( sizeof(char) * totBlocks * BLOCK_SIZE);
 
 	while(BLOCK_SIZE< offset){
