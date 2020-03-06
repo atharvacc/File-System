@@ -332,11 +332,13 @@ int fs_read(int fd, void *buf, size_t count)
 	int fat_idx = file_descriptor[fd].root_dir->first_data_block_index;
 	int size = file_descriptor[fd].root_dir->file_size;
 	int offset = file_descriptor[fd].offset;
+	/*
 	if(offset + count > size){
 		count = size - offset;
 	}
+	*/
 	int totBlocks = ceil(count/BLOCK_SIZE);
-	int* bounceBuffer = (int*) malloc(BLOCK_SIZE* sizeof(int) * totBlocks);
+	char* bounceBuffer = (char*) malloc(BLOCK_SIZE* sizeof(char) * totBlocks);
 
 	while(BLOCK_SIZE< offset){
 		fat_idx = fat[fat_idx];
