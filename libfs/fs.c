@@ -51,16 +51,7 @@ static bool mounted = false;
 int num_open_files = 0;
 
 
-int fs_get_block_from_offset(int first_data_block_index, int offset){
-	int block_no = first_data_block_index;
-	int offsetCpy = offset;
-	while(offsetCpy >= BLOCK_SIZE){
-		int newBlock = fat[block_no];
-		if(newBlock == 0 || newBlock == FAT_EOC){
-			
-		}
-	}
-}
+
 
 int fs_mount(const char *diskname)
 {
