@@ -209,10 +209,13 @@ int fs_delete(const char *filename)
 	}
 
 	for(int i = 0; i <FS_OPEN_MAX_COUNT; i++){
+		if(file_descriptor[i].root_dir->filename != NULL){
 		if(strcmp((char*)file_descriptor[i].root_dir->filename, filename) == 0){
 			return -1;
 		}
-	}
+		}
+	} // Check if the file is open
+
 	printf(" NO issues with location being too far away or non existance of file \n");
 	uint16_t data_block_index, temp_hold;
 	data_block_index = rootDir[file_loc].first_data_block_index;
