@@ -356,7 +356,7 @@ int fs_write(int fd, void *buf, size_t count)
 		int totBlocks = 1;
 		int BytesLeft = count;
 		int blockoffset = (int) (file_descriptor[fd].offset % BLOCK_SIZE);
-		printf("Offset block was %d \n", blockoffset);
+		//printf("Offset block was %d \n", blockoffset);
 		BytesLeft = BytesLeft - (BLOCK_SIZE - blockoffset);
 		while(BytesLeft > 0){
 			totBlocks++;
@@ -368,8 +368,8 @@ int fs_write(int fd, void *buf, size_t count)
 	//uint8_t *bounceBuffer = malloc(totBlocks * BLOCK_SIZE);
 	int* bounceBuffer = malloc( sizeof(int) * totBlocks * BLOCK_SIZE);
 	block_read(superBlock->data_block_index + fat_idx, bounceBuffer);
-	int offset_block = file_descriptor[fd].offset % BLOCK_SIZE;
-	printf("Offset block was %d \n", offset_block);
+	int offset_block = (int) (file_descriptor[fd].offset % BLOCK_SIZE);
+	//printf("Offset block was %d \n", offset_block);
 	memcpy(&bounceBuffer[offset_block], buf, count);
 
 	//printf("Done copying to bounc buffer from  buffer \n");
