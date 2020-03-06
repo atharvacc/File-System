@@ -383,7 +383,7 @@ int fs_write(int fd, void *buf, size_t count)
 			return -1;
 		} // No space 
 		fat[newSlot] = FAT_EOC;
-		
+		fat[fat_idx] = newSlot;
 		//fat_idx = newSlot;
 	}
 
