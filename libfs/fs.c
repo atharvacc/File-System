@@ -194,11 +194,11 @@ int fs_delete(const char *filename)
 	if (filename == NULL){
 		return -1;
 	}// invalid name
-	printf("No invalid name \n");
+	
 	int file_loc = 0;
 	for ( file_loc = 0; file_loc < FS_FILE_MAX_COUNT; file_loc ++){
 		if (strcmp((char*)rootDir[file_loc].filename, filename) == 0){
-		printf("Matchin file name was found at loc %d \n", file_loc);
+		
 			break;
 		}// If match file found
 	}
@@ -216,7 +216,7 @@ int fs_delete(const char *filename)
 		}
 	} // Check if the file is open
 
-	printf(" NO issues with location being too far away or non existance of file \n");
+	
 	uint16_t data_block_index, temp_hold;
 	data_block_index = rootDir[file_loc].first_data_block_index;
 	while(data_block_index != FAT_EOC){
@@ -225,12 +225,12 @@ int fs_delete(const char *filename)
 		data_block_index = temp_hold;
 	}// Clear out the fat block
 
-	printf("Cleared out FAT BLOCK \n");
+	
 	rootDir[file_loc].file_size = 0;
 	rootDir[file_loc].filename[0] = '\0';
 	rootDir[file_loc].first_data_block_index = 0;
 
-	printf("Cleared out rootDir \n");
+	
 	return 0;
 }
 
