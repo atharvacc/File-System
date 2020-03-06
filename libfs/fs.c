@@ -336,22 +336,22 @@ int fs_write(int fd, void *buf, size_t count)
 	char *buffer = (char*)malloc(sizeof(char) * BLOCK_SIZE);
 	file write_to_file = file_descriptor[fd];
 	size_t offsetB =  write_file.offset % BLOCK_SIZE;
-
+	char *temp_buffer;
 
 	int fat_index = file_descriptor.root_dir->first_data_block_index;
 	for (int i = 0; i < (file_descriptor.offset / BLOCK_SIZE); i++) {
 		fat_index = fat[fat_index];
 	}
 
-	block_read(block + superblock->data_block_index, buffer);
-	memcpy((buffer + offsetB), buf_copy, (BLOCK_SIZE - offsetB));
-	block_write(block + superblock->data_block_index, buffer);
+	block_read(fat_index + superblock->data_block_index, buffer);
+	memcpy((buffer + offsetB), temp_buffer, (BLOCK_SIZE - offsetB));
+	block_write(fat_index + superblock->data_block_index, buffer);
 
 	size_t indexB;
-	char *temp_buffer;
+
 	//write to data blocks
 	for (int i = 0; i < (count/(BLOCK_SIZE+1)) ;i++){
-		block_write(block + superblock->data_block_index, buffer);
+		block_write(fat_index + superblock->data_block_index, buffer);
 		temp_buffer += BLOCK_SIZE;
 		indexB = fat[data_block_index];
 	}
